@@ -53,7 +53,7 @@ interface AppState {
   deleteUser: (id: string) => void;
 
   // buildings
-  addBuilding: (b: Omit<Building, "id">) => void;
+  addBuilding: (b: Omit<Building, "id">) => string;
   updateBuilding: (id: string, patch: Partial<Building>) => void;
   /** Bloquea el borrado si el edificio tiene unidades. */
   deleteBuilding: (id: string) => DeleteResult;
@@ -135,7 +135,11 @@ export const useAppStore = create<AppState>()(
         set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, ...patch } : u)) })),
       deleteUser: (id) => set((s) => ({ users: s.users.filter((u) => u.id !== id) })),
 
-      addBuilding: (b) => set((s) => ({ buildings: [...s.buildings, { ...b, id: uid() }] })),
+      addBuilding: (b) => {
+        const id = uid();
+        set((s) => ({ buildings: [...s.buildings, { ...b, id }] }));
+        return id;
+      },
       updateBuilding: (id, patch) =>
         set((s) => ({
           buildings: s.buildings.map((b) => (b.id === id ? { ...b, ...patch } : b)),
