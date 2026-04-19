@@ -10,19 +10,27 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ChangePasswordRouteImport } from './routes/change-password'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PropertiesIndexRouteImport } from './routes/properties.index'
+import { Route as OwnerIndexRouteImport } from './routes/owner.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as PropertiesPropertyIdRouteImport } from './routes/properties.$propertyId'
+import { Route as OwnerPropertiesRouteImport } from './routes/owner.properties'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerRoute = OwnerRouteImport.update({
+  id: '/owner',
+  path: '/owner',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -55,6 +63,11 @@ const PropertiesIndexRoute = PropertiesIndexRouteImport.update({
   path: '/properties/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OwnerIndexRoute = OwnerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OwnerRoute,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -64,6 +77,11 @@ const PropertiesPropertyIdRoute = PropertiesPropertyIdRouteImport.update({
   id: '/properties/$propertyId',
   path: '/properties/$propertyId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerPropertiesRoute = OwnerPropertiesRouteImport.update({
+  id: '/properties',
+  path: '/properties',
+  getParentRoute: () => OwnerRoute,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
@@ -77,10 +95,13 @@ export interface FileRoutesByFullPath {
   '/change-password': typeof ChangePasswordRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/owner': typeof OwnerRouteWithChildren
   '/register': typeof RegisterRoute
   '/admin/users': typeof AdminUsersRoute
+  '/owner/properties': typeof OwnerPropertiesRoute
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/owner/': typeof OwnerIndexRoute
   '/properties/': typeof PropertiesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -90,8 +111,10 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/admin/users': typeof AdminUsersRoute
+  '/owner/properties': typeof OwnerPropertiesRoute
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
   '/admin': typeof AdminIndexRoute
+  '/owner': typeof OwnerIndexRoute
   '/properties': typeof PropertiesIndexRoute
 }
 export interface FileRoutesById {
@@ -101,10 +124,13 @@ export interface FileRoutesById {
   '/change-password': typeof ChangePasswordRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/owner': typeof OwnerRouteWithChildren
   '/register': typeof RegisterRoute
   '/admin/users': typeof AdminUsersRoute
+  '/owner/properties': typeof OwnerPropertiesRoute
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/owner/': typeof OwnerIndexRoute
   '/properties/': typeof PropertiesIndexRoute
 }
 export interface FileRouteTypes {
@@ -115,10 +141,13 @@ export interface FileRouteTypes {
     | '/change-password'
     | '/forgot-password'
     | '/login'
+    | '/owner'
     | '/register'
     | '/admin/users'
+    | '/owner/properties'
     | '/properties/$propertyId'
     | '/admin/'
+    | '/owner/'
     | '/properties/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -128,8 +157,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/admin/users'
+    | '/owner/properties'
     | '/properties/$propertyId'
     | '/admin'
+    | '/owner'
     | '/properties'
   id:
     | '__root__'
@@ -138,10 +169,13 @@ export interface FileRouteTypes {
     | '/change-password'
     | '/forgot-password'
     | '/login'
+    | '/owner'
     | '/register'
     | '/admin/users'
+    | '/owner/properties'
     | '/properties/$propertyId'
     | '/admin/'
+    | '/owner/'
     | '/properties/'
   fileRoutesById: FileRoutesById
 }
@@ -151,6 +185,7 @@ export interface RootRouteChildren {
   ChangePasswordRoute: typeof ChangePasswordRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
+  OwnerRoute: typeof OwnerRouteWithChildren
   RegisterRoute: typeof RegisterRoute
   PropertiesPropertyIdRoute: typeof PropertiesPropertyIdRoute
   PropertiesIndexRoute: typeof PropertiesIndexRoute
@@ -163,6 +198,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner': {
+      id: '/owner'
+      path: '/owner'
+      fullPath: '/owner'
+      preLoaderRoute: typeof OwnerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -207,6 +249,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PropertiesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/owner/': {
+      id: '/owner/'
+      path: '/'
+      fullPath: '/owner/'
+      preLoaderRoute: typeof OwnerIndexRouteImport
+      parentRoute: typeof OwnerRoute
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
@@ -220,6 +269,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/properties/$propertyId'
       preLoaderRoute: typeof PropertiesPropertyIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/owner/properties': {
+      id: '/owner/properties'
+      path: '/properties'
+      fullPath: '/owner/properties'
+      preLoaderRoute: typeof OwnerPropertiesRouteImport
+      parentRoute: typeof OwnerRoute
     }
     '/admin/users': {
       id: '/admin/users'
@@ -243,12 +299,25 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface OwnerRouteChildren {
+  OwnerPropertiesRoute: typeof OwnerPropertiesRoute
+  OwnerIndexRoute: typeof OwnerIndexRoute
+}
+
+const OwnerRouteChildren: OwnerRouteChildren = {
+  OwnerPropertiesRoute: OwnerPropertiesRoute,
+  OwnerIndexRoute: OwnerIndexRoute,
+}
+
+const OwnerRouteWithChildren = OwnerRoute._addFileChildren(OwnerRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   ChangePasswordRoute: ChangePasswordRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
+  OwnerRoute: OwnerRouteWithChildren,
   RegisterRoute: RegisterRoute,
   PropertiesPropertyIdRoute: PropertiesPropertyIdRoute,
   PropertiesIndexRoute: PropertiesIndexRoute,
