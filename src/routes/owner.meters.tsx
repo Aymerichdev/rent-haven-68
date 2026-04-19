@@ -26,7 +26,7 @@ function Page() {
   const meters = useAppStore((s) => s.meters);
 
   const ownerBuildings = buildings.filter((b) => b.ownerId === user?.id);
-  const ownerUnits = units.filter((u) => ownerBuildings.some((b) => b.id === u.buildingId));
+  const ownerUnits = units.filter((u) => u.ownerId === user?.id);
   const ownerMeters = meters.filter((m) => ownerUnits.some((u) => u.id === m.unitId));
   const add = useAppStore((s) => s.addMeter);
   const del = useAppStore((s) => s.deleteMeter);
