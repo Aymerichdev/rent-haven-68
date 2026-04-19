@@ -1,0 +1,295 @@
+import type {
+  User,
+  Property,
+  Building,
+  Unit,
+  Amenity,
+  Meter,
+  RentalRequest,
+  AmenityBooking,
+  Contract,
+  Payment,
+} from "./types";
+import prop1 from "@/assets/prop1.jpg";
+import prop2 from "@/assets/prop2.jpg";
+import prop3 from "@/assets/prop3.jpg";
+import prop4 from "@/assets/prop4.jpg";
+import prop5 from "@/assets/prop5.jpg";
+import prop6 from "@/assets/prop6.jpg";
+
+export const seedUsers: User[] = [
+  {
+    id: "u1",
+    name: "Ana Admin",
+    email: "admin@estate.com",
+    password: "admin123",
+    role: "admin",
+    createdAt: "2024-01-10",
+  },
+  {
+    id: "u2",
+    name: "Carlos Propietario",
+    email: "owner@estate.com",
+    password: "owner123",
+    role: "owner",
+    createdAt: "2024-02-15",
+  },
+  {
+    id: "u3",
+    name: "María Inquilina",
+    email: "tenant@estate.com",
+    password: "tenant123",
+    role: "tenant",
+    createdAt: "2024-03-20",
+  },
+  {
+    id: "u4",
+    name: "Lucía Rivera",
+    email: "lucia@estate.com",
+    password: "123456",
+    role: "tenant",
+    createdAt: "2024-04-01",
+  },
+];
+
+export const seedBuildings: Building[] = [
+  {
+    id: "b1",
+    name: "Torres del Sol",
+    address: "Av. Principal 123",
+    city: "Madrid",
+    ownerId: "u2",
+    amenityIds: ["a1", "a2", "a3"],
+  },
+  {
+    id: "b2",
+    name: "Residencial Oasis",
+    address: "Calle Verde 45",
+    city: "Barcelona",
+    ownerId: "u2",
+    amenityIds: ["a4"],
+  },
+];
+
+export const seedAmenities: Amenity[] = [
+  { id: "a1", name: "Piscina", icon: "🏊", buildingId: "b1", bookable: true },
+  { id: "a2", name: "Gimnasio", icon: "🏋️", buildingId: "b1", bookable: true },
+  { id: "a3", name: "Terraza", icon: "🌇", buildingId: "b1", bookable: true },
+  { id: "a4", name: "Salón eventos", icon: "🎉", buildingId: "b2", bookable: true },
+];
+
+export const seedProperties: Property[] = [
+  {
+    id: "p1",
+    ownerId: "u2",
+    title: "Loft luminoso en el centro",
+    description:
+      "Espectacular loft con grandes ventanales, suelo de madera y mucha luz natural. Cerca de transporte y restaurantes.",
+    type: "apartment",
+    city: "Madrid",
+    address: "Calle Mayor 12, 3ºA",
+    price: 1450,
+    bedrooms: 2,
+    bathrooms: 1,
+    area: 78,
+    images: [prop1, prop2, prop4],
+    buildingId: "b1",
+    featured: true,
+  },
+  {
+    id: "p2",
+    ownerId: "u2",
+    title: "Apartamento con piscina y vistas",
+    description: "Vivienda moderna con acceso a piscina en azotea y vistas a la ciudad.",
+    type: "apartment",
+    city: "Madrid",
+    address: "Av. Principal 123, 8ºB",
+    price: 1850,
+    bedrooms: 3,
+    bathrooms: 2,
+    area: 105,
+    images: [prop3, prop1, prop6],
+    buildingId: "b1",
+    featured: true,
+  },
+  {
+    id: "p3",
+    ownerId: "u2",
+    title: "Casita con jardín en zona tranquila",
+    description: "Casa encantadora con jardín privado, ideal para familias o teletrabajo.",
+    type: "house",
+    city: "Barcelona",
+    address: "Calle Verde 45",
+    price: 1650,
+    bedrooms: 3,
+    bathrooms: 2,
+    area: 120,
+    images: [prop5, prop2, prop4],
+    buildingId: "b2",
+  },
+  {
+    id: "p4",
+    ownerId: "u2",
+    title: "Estudio acogedor",
+    description: "Estudio compacto y bien aprovechado, perfecto para estudiantes o profesionales.",
+    type: "studio",
+    city: "Madrid",
+    address: "Plaza Sol 5",
+    price: 850,
+    bedrooms: 1,
+    bathrooms: 1,
+    area: 35,
+    images: [prop2, prop4],
+  },
+  {
+    id: "p5",
+    ownerId: "u2",
+    title: "Apartamento moderno con balcón",
+    description: "Diseño contemporáneo, cocina integrada y balcón con vistas.",
+    type: "apartment",
+    city: "Valencia",
+    address: "Calle Marítima 88",
+    price: 1250,
+    bedrooms: 2,
+    bathrooms: 2,
+    area: 82,
+    images: [prop6, prop1, prop3],
+    featured: true,
+  },
+  {
+    id: "p6",
+    ownerId: "u2",
+    title: "Cocina de diseño y amplios espacios",
+    description: "Vivienda renovada con cocina de mármol y mucha luminosidad.",
+    type: "apartment",
+    city: "Sevilla",
+    address: "Av. Reyes 22",
+    price: 1100,
+    bedrooms: 2,
+    bathrooms: 1,
+    area: 70,
+    images: [prop4, prop1, prop2],
+  },
+];
+
+export const seedUnits: Unit[] = [
+  {
+    id: "un1",
+    buildingId: "b1",
+    propertyId: "p1",
+    number: "3A",
+    bedrooms: 2,
+    bathrooms: 1,
+    area: 78,
+    rent: 1450,
+    status: "rented",
+    tenantId: "u3",
+  },
+  {
+    id: "un2",
+    buildingId: "b1",
+    propertyId: "p2",
+    number: "8B",
+    bedrooms: 3,
+    bathrooms: 2,
+    area: 105,
+    rent: 1850,
+    status: "available",
+  },
+  {
+    id: "un3",
+    buildingId: "b2",
+    propertyId: "p3",
+    number: "Casa 1",
+    bedrooms: 3,
+    bathrooms: 2,
+    area: 120,
+    rent: 1650,
+    status: "available",
+  },
+];
+
+export const seedMeters: Meter[] = [
+  { id: "m1", unitId: "un1", type: "water", reading: 230, date: "2025-03-01" },
+  { id: "m2", unitId: "un1", type: "electricity", reading: 1240, date: "2025-03-01" },
+];
+
+export const seedRequests: RentalRequest[] = [
+  {
+    id: "r1",
+    propertyId: "p2",
+    tenantId: "u4",
+    ownerId: "u2",
+    message: "Hola, me interesa mucho el apartamento. ¿Podemos visitarlo?",
+    status: "pending",
+    createdAt: "2025-04-10",
+  },
+];
+
+export const seedBookings: AmenityBooking[] = [
+  {
+    id: "ab1",
+    amenityId: "a1",
+    tenantId: "u3",
+    ownerId: "u2",
+    date: "2025-04-25",
+    time: "18:00",
+    status: "pending",
+  },
+];
+
+export const seedContracts: Contract[] = [
+  {
+    id: "c1",
+    propertyId: "p1",
+    tenantId: "u3",
+    ownerId: "u2",
+    startDate: "2024-09-01",
+    endDate: "2025-08-31",
+    monthlyRent: 1450,
+    deposit: 2900,
+    status: "active",
+  },
+];
+
+export const seedPayments: Payment[] = [
+  {
+    id: "pay1",
+    contractId: "c1",
+    tenantId: "u3",
+    month: "2025-01",
+    amount: 1450,
+    utilities: 95,
+    status: "paid",
+    paidAt: "2025-01-05",
+  },
+  {
+    id: "pay2",
+    contractId: "c1",
+    tenantId: "u3",
+    month: "2025-02",
+    amount: 1450,
+    utilities: 110,
+    status: "paid",
+    paidAt: "2025-02-04",
+  },
+  {
+    id: "pay3",
+    contractId: "c1",
+    tenantId: "u3",
+    month: "2025-03",
+    amount: 1450,
+    utilities: 88,
+    status: "paid",
+    paidAt: "2025-03-06",
+  },
+  {
+    id: "pay4",
+    contractId: "c1",
+    tenantId: "u3",
+    month: "2025-04",
+    amount: 1450,
+    utilities: 102,
+    status: "pending",
+  },
+];
