@@ -168,13 +168,16 @@ function Page() {
                 <div>
                   <Label>Edificio</Label>
                   <Select
-                    value={form.buildingId}
-                    onValueChange={(v) => setForm({ ...form, buildingId: v })}
+                    value={form.buildingId ?? "__none__"}
+                    onValueChange={(v) =>
+                      setForm({ ...form, buildingId: v === "__none__" ? undefined : v })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="__none__">Sin edificio (independiente)</SelectItem>
                       {ownerBuildings.map((b) => (
                         <SelectItem key={b.id} value={b.id}>
                           {b.name}
