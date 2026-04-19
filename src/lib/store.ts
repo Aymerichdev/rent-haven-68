@@ -224,9 +224,9 @@ export const useAppStore = create<AppState>()(
       migrate: (persisted: unknown, version) => {
         if (version < 2) {
           const prev = (persisted ?? {}) as { currentUser?: User | null };
-          return { currentUser: prev.currentUser ?? null } as Partial<AppState>;
+          return { currentUser: prev.currentUser ?? null };
         }
-        return persisted as Partial<AppState>;
+        return (persisted as { currentUser: User | null }) ?? { currentUser: null };
       },
       partialize: (s) => ({ currentUser: s.currentUser }),
     },
