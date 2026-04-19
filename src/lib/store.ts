@@ -156,14 +156,24 @@ export const useAppStore = create<AppState>()(
       },
 
       addUnit: (u) => {
-        const building = get().buildings.find((b) => b.id === u.buildingId);
-        if (!building) return { ok: false, reason: "Edificio inválido" };
-        if (building.ownerId !== u.ownerId)
-          return { ok: false, reason: "El owner debe coincidir con el del edificio" };
-        const dup = get().units.some(
-          (x) => x.buildingId === u.buildingId && x.number.trim() === u.number.trim(),
-        );
-        if (dup) return { ok: false, reason: "Ya existe una unidad con ese número en el edificio" };
+        if (u.buildingId) {
+          const building = get().buildings.find((b) => b.id === u.buildingId);
+          if (!building) return { ok: false, reason: "Edificio inválido" };
+          if (building.ownerId !== u.ownerId)
+            return { ok: false, reason: "El owner debe coincidir con el del edificio" };
+          const dup = get().units.some(
+            (x) =>
+              x.buildingId === u.buildingId && x.number.trim() === u.number.trim(),
+          );
+          if (dup)
+            return { ok: false, reason: "Ya existe una unidad con ese número en el edificio" };
+        } else {
+          if (!u.addressOverride?.trim() || !u.cityOverride?.trim())
+            return {
+              ok: false,
+              reason: "Las unidades sin edificio requieren dirección y ciudad",
+            };
+        }
         set((s) => ({ units: [...s.units, { ...u, id: uid() }] }));
         return { ok: true };
       },
@@ -218,11 +228,11 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: "estate-app",
-      version: 2,
-      // v1 (Property + Unit duplicados) → v2 (sólo Unit). Reset duro: descartamos
-      // el estado viejo y rehidratamos con seeds nuevos. Sólo conservamos sesión.
+      version: 3,
+      // v2→v3: Building ahora tiene images[]; Unit.buildingId es opcional y
+      // existe cityOverride. Reset duro para evitar estados inconsistentes.
       migrate: (persisted: unknown, version) => {
-        if (version < 2) {
+        if (version < 3) {
           const prev = (persisted ?? {}) as { currentUser?: User | null };
           return { currentUser: prev.currentUser ?? null };
         }
@@ -239,5 +249,5 @@ export const getRole = (u: User | null): Role => u?.role ?? "public";
 export const getUnitAddress = (unit: Unit, building: Building | undefined): string =>
   unit.addressOverride ?? building?.address ?? "";
 
-export const getUnitCity = (_unit: Unit, building: Building | undefined): string =>
-  building?.city ?? "";
+export const getUnitCity = (unit: Unit, building: Building | undefined): string =>
+  unit.cityOverride ?? building?.city ?? "";
