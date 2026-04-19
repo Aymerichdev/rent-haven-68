@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { RequireRole } from "@/components/site/RequireRole";
 import { DashboardShell } from "@/components/site/DashboardShell";
-import { LayoutDashboard, Home, Building2, DoorOpen, Sparkles, Gauge, Inbox } from "lucide-react";
+import { LayoutDashboard, Building2, DoorOpen, Sparkles, Gauge, Inbox } from "lucide-react";
 
 export const Route = createFileRoute("/owner")({
   component: Layout,
@@ -15,7 +15,6 @@ function Layout() {
         brandTag="Propietario"
         items={[
           { to: "/owner", label: "Resumen", icon: <LayoutDashboard className="h-4 w-4" /> },
-          { to: "/owner/properties", label: "Propiedades", icon: <Home className="h-4 w-4" /> },
           { to: "/owner/buildings", label: "Edificios", icon: <Building2 className="h-4 w-4" /> },
           { to: "/owner/units", label: "Unidades", icon: <DoorOpen className="h-4 w-4" /> },
           { to: "/owner/amenities", label: "Amenidades", icon: <Sparkles className="h-4 w-4" /> },

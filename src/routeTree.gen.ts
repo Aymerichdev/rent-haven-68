@@ -17,9 +17,11 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ChangePasswordRouteImport } from './routes/change-password'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UnitsIndexRouteImport } from './routes/units.index'
 import { Route as TenantIndexRouteImport } from './routes/tenant.index'
 import { Route as OwnerIndexRouteImport } from './routes/owner.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as UnitsUnitIdRouteImport } from './routes/units.$unitId'
 import { Route as TenantRentalsRouteImport } from './routes/tenant.rentals'
 import { Route as TenantPaymentsRouteImport } from './routes/tenant.payments'
 import { Route as TenantContractsRouteImport } from './routes/tenant.contracts'
@@ -71,6 +73,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UnitsIndexRoute = UnitsIndexRouteImport.update({
+  id: '/units/',
+  path: '/units/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TenantIndexRoute = TenantIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -85,6 +92,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const UnitsUnitIdRoute = UnitsUnitIdRouteImport.update({
+  id: '/units/$unitId',
+  path: '/units/$unitId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const TenantRentalsRoute = TenantRentalsRouteImport.update({
   id: '/rentals',
@@ -156,9 +168,11 @@ export interface FileRoutesByFullPath {
   '/tenant/contracts': typeof TenantContractsRoute
   '/tenant/payments': typeof TenantPaymentsRoute
   '/tenant/rentals': typeof TenantRentalsRoute
+  '/units/$unitId': typeof UnitsUnitIdRoute
   '/admin/': typeof AdminIndexRoute
   '/owner/': typeof OwnerIndexRoute
   '/tenant/': typeof TenantIndexRoute
+  '/units/': typeof UnitsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -176,9 +190,11 @@ export interface FileRoutesByTo {
   '/tenant/contracts': typeof TenantContractsRoute
   '/tenant/payments': typeof TenantPaymentsRoute
   '/tenant/rentals': typeof TenantRentalsRoute
+  '/units/$unitId': typeof UnitsUnitIdRoute
   '/admin': typeof AdminIndexRoute
   '/owner': typeof OwnerIndexRoute
   '/tenant': typeof TenantIndexRoute
+  '/units': typeof UnitsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -200,9 +216,11 @@ export interface FileRoutesById {
   '/tenant/contracts': typeof TenantContractsRoute
   '/tenant/payments': typeof TenantPaymentsRoute
   '/tenant/rentals': typeof TenantRentalsRoute
+  '/units/$unitId': typeof UnitsUnitIdRoute
   '/admin/': typeof AdminIndexRoute
   '/owner/': typeof OwnerIndexRoute
   '/tenant/': typeof TenantIndexRoute
+  '/units/': typeof UnitsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -225,9 +243,11 @@ export interface FileRouteTypes {
     | '/tenant/contracts'
     | '/tenant/payments'
     | '/tenant/rentals'
+    | '/units/$unitId'
     | '/admin/'
     | '/owner/'
     | '/tenant/'
+    | '/units/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -245,9 +265,11 @@ export interface FileRouteTypes {
     | '/tenant/contracts'
     | '/tenant/payments'
     | '/tenant/rentals'
+    | '/units/$unitId'
     | '/admin'
     | '/owner'
     | '/tenant'
+    | '/units'
   id:
     | '__root__'
     | '/'
@@ -268,9 +290,11 @@ export interface FileRouteTypes {
     | '/tenant/contracts'
     | '/tenant/payments'
     | '/tenant/rentals'
+    | '/units/$unitId'
     | '/admin/'
     | '/owner/'
     | '/tenant/'
+    | '/units/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -282,6 +306,8 @@ export interface RootRouteChildren {
   OwnerRoute: typeof OwnerRouteWithChildren
   RegisterRoute: typeof RegisterRoute
   TenantRoute: typeof TenantRouteWithChildren
+  UnitsUnitIdRoute: typeof UnitsUnitIdRoute
+  UnitsIndexRoute: typeof UnitsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -342,6 +368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/units/': {
+      id: '/units/'
+      path: '/units'
+      fullPath: '/units/'
+      preLoaderRoute: typeof UnitsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tenant/': {
       id: '/tenant/'
       path: '/'
@@ -362,6 +395,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/units/$unitId': {
+      id: '/units/$unitId'
+      path: '/units/$unitId'
+      fullPath: '/units/$unitId'
+      preLoaderRoute: typeof UnitsUnitIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/tenant/rentals': {
       id: '/tenant/rentals'
@@ -496,7 +536,18 @@ const rootRouteChildren: RootRouteChildren = {
   OwnerRoute: OwnerRouteWithChildren,
   RegisterRoute: RegisterRoute,
   TenantRoute: TenantRouteWithChildren,
+  UnitsUnitIdRoute: UnitsUnitIdRoute,
+  UnitsIndexRoute: UnitsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

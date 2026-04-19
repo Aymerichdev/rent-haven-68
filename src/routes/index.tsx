@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useAppStore } from "@/lib/store";
 import { PublicNavbar, Footer } from "@/components/site/PublicNavbar";
-import { PropertyCard } from "@/components/site/PropertyCard";
+import { UnitCard } from "@/components/site/UnitCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import hero from "@/assets/hero.jpg";
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Plataforma de alquileres con propiedades verificadas, contratos digitales y reserva de amenidades.",
+          "Plataforma de alquileres con unidades verificadas, contratos digitales y reserva de amenidades.",
       },
       { property: "og:title", content: "EstateHub — Encuentra tu próximo hogar" },
       {
@@ -28,9 +28,10 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const properties = useAppStore((s) => s.properties);
-  const featured = properties.filter((p) => p.featured).slice(0, 3);
-  const cities = Array.from(new Set(properties.map((p) => p.city)));
+  const units = useAppStore((s) => s.units);
+  const buildings = useAppStore((s) => s.buildings);
+  const featured = units.filter((u) => u.featured && u.status === "available").slice(0, 3);
+  const cities = Array.from(new Set(buildings.map((b) => b.city)));
   const [city, setCity] = useState("");
 
   return (
@@ -46,8 +47,7 @@ function Index() {
         <div className="relative mx-auto max-w-7xl px-6 pb-24 pt-20 lg:pb-32 lg:pt-28">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-medium backdrop-blur">
-              <Sparkles className="h-3 w-3 text-primary" /> Más de {properties.length} propiedades
-              disponibles
+              <Sparkles className="h-3 w-3 text-primary" /> Más de {units.length} unidades disponibles
             </span>
             <h1 className="mt-4 font-display text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               Tu próximo hogar
@@ -79,7 +79,7 @@ function Index() {
                 </datalist>
               </div>
               <Button asChild size="lg" className="rounded-xl bg-gradient-warm">
-                <Link to="/properties" search={{ city } as never}>
+                <Link to="/units">
                   <Search className="mr-2 h-4 w-4" /> Buscar
                 </Link>
               </Button>
@@ -101,18 +101,18 @@ function Index() {
       <section className="mx-auto max-w-7xl px-6 py-16">
         <div className="mb-8 flex items-end justify-between">
           <div>
-            <h2 className="font-display text-2xl font-bold sm:text-3xl">Propiedades destacadas</h2>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">Unidades destacadas</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Selección de las mejores opciones esta semana.
             </p>
           </div>
           <Button asChild variant="ghost" className="hidden sm:inline-flex">
-            <Link to="/properties">Ver todas →</Link>
+            <Link to="/units">Ver todas →</Link>
           </Button>
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((p) => (
-            <PropertyCard key={p.id} p={p} />
+          {featured.map((u) => (
+            <UnitCard key={u.id} unit={u} building={buildings.find((b) => b.id === u.buildingId)} />
           ))}
         </div>
       </section>
@@ -124,7 +124,7 @@ function Index() {
           {cities.map((c) => (
             <Link
               key={c}
-              to="/properties"
+              to="/units"
               className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium shadow-sm transition hover:border-primary hover:text-primary"
             >
               {c}
