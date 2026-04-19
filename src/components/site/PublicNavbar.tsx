@@ -46,8 +46,8 @@ export function PublicNavbar() {
             Inicio
           </Link>
           <Link
-            to="/properties"
-            className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${path.startsWith("/properties") ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            to="/units"
+            className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${path.startsWith("/units") ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
             Explorar
           </Link>
@@ -86,7 +86,7 @@ export function PublicNavbar() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/properties">
+                  <Link to="/units">
                     <Search className="mr-2 h-4 w-4" /> Explorar
                   </Link>
                 </DropdownMenuItem>

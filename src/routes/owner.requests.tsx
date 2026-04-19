@@ -13,14 +13,14 @@ function Page() {
   const user = useAppStore((s) => s.currentUser);
   const requests = useAppStore((s) => s.requests);
   const bookings = useAppStore((s) => s.bookings);
-
-  const ownerRequests = requests.filter((r) => r.ownerId === user?.id);
-  const ownerBookings = bookings.filter((b) => b.ownerId === user?.id);
-  const properties = useAppStore((s) => s.properties);
+  const units = useAppStore((s) => s.units);
   const amenities = useAppStore((s) => s.amenities);
   const users = useAppStore((s) => s.users);
   const setReq = useAppStore((s) => s.setRequestStatus);
   const setBook = useAppStore((s) => s.setBookingStatus);
+
+  const ownerRequests = requests.filter((r) => r.ownerId === user?.id);
+  const ownerBookings = bookings.filter((b) => b.ownerId === user?.id);
 
   return (
     <div className="space-y-8">
@@ -42,7 +42,7 @@ function Page() {
         ) : (
           <div className="space-y-3">
             {ownerRequests.map((r) => {
-              const p = properties.find((x) => x.id === r.propertyId);
+              const u = units.find((x) => x.id === r.unitId);
               const tenant = users.find((x) => x.id === r.tenantId);
               return (
                 <div
@@ -50,15 +50,15 @@ function Page() {
                   className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-card sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="flex items-center gap-4">
-                    {p && (
+                    {u && (
                       <img
-                        src={p.images[0]}
+                        src={u.images[0]}
                         alt=""
                         className="h-16 w-20 rounded-lg object-cover"
                       />
                     )}
                     <div>
-                      <div className="font-medium">{p?.title}</div>
+                      <div className="font-medium">{u?.title}</div>
                       <div className="text-xs text-muted-foreground">
                         {tenant?.name} · {r.createdAt}
                       </div>

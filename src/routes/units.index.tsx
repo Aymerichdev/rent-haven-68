@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useAppStore } from "@/lib/store";
 import { PublicNavbar, Footer } from "@/components/site/PublicNavbar";
-import { PropertyCard } from "@/components/site/PropertyCard";
+import { UnitCard } from "@/components/site/UnitCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,12 +14,12 @@ import {
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
 
-export const Route = createFileRoute("/properties/")({
+export const Route = createFileRoute("/units/")({
   head: () => ({
     meta: [
-      { title: "Explorar propiedades — EstateHub" },
+      { title: "Explorar unidades — EstateHub" },
       { name: "description", content: "Encuentra apartamentos, casas y estudios en alquiler." },
-      { property: "og:title", content: "Explorar propiedades — EstateHub" },
+      { property: "og:title", content: "Explorar unidades — EstateHub" },
       { property: "og:description", content: "Encuentra tu próximo hogar." },
     ],
   }),
@@ -27,28 +27,32 @@ export const Route = createFileRoute("/properties/")({
 });
 
 function Page() {
-  const properties = useAppStore((s) => s.properties);
+  const units = useAppStore((s) => s.units);
+  const buildings = useAppStore((s) => s.buildings);
   const [q, setQ] = useState("");
   const [type, setType] = useState<string>("all");
   const [maxPrice, setMaxPrice] = useState<string>("");
 
   const list = useMemo(() => {
-    return properties.filter((p) => {
-      if (type !== "all" && p.type !== type) return false;
-      if (maxPrice && p.price > Number(maxPrice)) return false;
+    return units.filter((u) => {
+      if (u.status !== "available") return false;
+      if (type !== "all" && u.type !== type) return false;
+      if (maxPrice && u.rent > Number(maxPrice)) return false;
       if (q) {
         const s = q.toLowerCase();
-        if (!p.title.toLowerCase().includes(s) && !p.city.toLowerCase().includes(s)) return false;
+        const b = buildings.find((x) => x.id === u.buildingId);
+        const city = b?.city.toLowerCase() ?? "";
+        if (!u.title.toLowerCase().includes(s) && !city.includes(s)) return false;
       }
       return true;
     });
-  }, [properties, q, type, maxPrice]);
+  }, [units, buildings, q, type, maxPrice]);
 
   return (
     <div className="min-h-screen bg-background">
       <PublicNavbar />
       <section className="mx-auto max-w-7xl px-6 py-10">
-        <h1 className="font-display text-3xl font-bold">Explora propiedades</h1>
+        <h1 className="font-display text-3xl font-bold">Explora unidades</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {list.length} resultado{list.length === 1 ? "" : "s"}
         </p>
@@ -84,7 +88,7 @@ function Page() {
 
         {list.length === 0 ? (
           <div className="mt-12 rounded-2xl border border-dashed border-border p-12 text-center">
-            <p className="text-muted-foreground">No encontramos propiedades con esos filtros.</p>
+            <p className="text-muted-foreground">No encontramos unidades con esos filtros.</p>
             <Button
               variant="outline"
               className="mt-4"
@@ -99,8 +103,8 @@ function Page() {
           </div>
         ) : (
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {list.map((p) => (
-              <PropertyCard key={p.id} p={p} />
+            {list.map((u) => (
+              <UnitCard key={u.id} unit={u} building={buildings.find((b) => b.id === u.buildingId)} />
             ))}
           </div>
         )}

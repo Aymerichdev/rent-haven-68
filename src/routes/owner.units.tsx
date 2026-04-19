@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useAppStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -20,8 +21,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Pencil } from "lucide-react";
 import type { Unit } from "@/lib/types";
+import prop1 from "@/assets/prop1.jpg";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/owner/units")({
@@ -31,154 +33,257 @@ export const Route = createFileRoute("/owner/units")({
 function Page() {
   const user = useAppStore((s) => s.currentUser);
   const buildings = useAppStore((s) => s.buildings);
-  const properties = useAppStore((s) => s.properties);
   const units = useAppStore((s) => s.units);
-
-  const ownerBuildings = buildings.filter((b) => b.ownerId === user?.id);
-  const ownerProperties = properties.filter((p) => p.ownerId === user?.id);
-  const ownerUnits = units.filter((u) => ownerBuildings.some((b) => b.id === u.buildingId));
   const add = useAppStore((s) => s.addUnit);
   const del = useAppStore((s) => s.deleteUnit);
   const upd = useAppStore((s) => s.updateUnit);
 
-  const [open, setOpen] = useState(false);
-  const empty: Omit<Unit, "id"> = {
+  const ownerBuildings = useMemo(
+    () => buildings.filter((b) => b.ownerId === user?.id),
+    [buildings, user?.id],
+  );
+  const ownerUnits = useMemo(
+    () => units.filter((u) => u.ownerId === user?.id),
+    [units, user?.id],
+  );
+
+  const [filterBuilding, setFilterBuilding] = useState<string>("all");
+  const filteredUnits = useMemo(
+    () =>
+      filterBuilding === "all"
+        ? ownerUnits
+        : ownerUnits.filter((u) => u.buildingId === filterBuilding),
+    [ownerUnits, filterBuilding],
+  );
+
+  const buildEmpty = (): Omit<Unit, "id"> => ({
     buildingId: ownerBuildings[0]?.id ?? "",
-    propertyId: ownerProperties[0]?.id ?? "",
+    ownerId: user?.id ?? "",
     number: "",
+    title: "",
+    description: "",
+    type: "apartment",
+    images: [prop1],
     bedrooms: 1,
     bathrooms: 1,
     area: 50,
     rent: 800,
     status: "available",
+  });
+
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Unit | null>(null);
+  const [form, setForm] = useState<Omit<Unit, "id">>(buildEmpty);
+
+  const startNew = () => {
+    if (ownerBuildings.length === 0) {
+      toast.error("Crea primero un edificio");
+      return;
+    }
+    setEditing(null);
+    setForm(buildEmpty());
+    setOpen(true);
   };
-  const [form, setForm] = useState(empty);
+  const startEdit = (u: Unit) => {
+    setEditing(u);
+    const { id: _id, ...rest } = u;
+    void _id;
+    setForm(rest);
+    setOpen(true);
+  };
 
   const save = () => {
-    if (!form.buildingId || !form.number) return toast.error("Edificio y número requeridos");
-    add(form);
-    toast.success("Unidad creada");
+    if (!form.buildingId) return toast.error("Selecciona un edificio");
+    if (!form.number.trim()) return toast.error("El número es obligatorio");
+    if (!form.title.trim()) return toast.error("El título es obligatorio");
+
+    if (editing) {
+      // chequeo de duplicado al renombrar
+      const dup = ownerUnits.some(
+        (x) =>
+          x.id !== editing.id &&
+          x.buildingId === form.buildingId &&
+          x.number.trim() === form.number.trim(),
+      );
+      if (dup) return toast.error("Ya existe una unidad con ese número en el edificio");
+      upd(editing.id, form);
+      toast.success("Unidad actualizada");
+    } else {
+      const r = add(form);
+      if (!r.ok) return toast.error(r.reason);
+      toast.success("Unidad creada");
+    }
     setOpen(false);
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-end justify-between">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold sm:text-3xl">Unidades</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{ownerUnits.length} unidades</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {ownerUnits.length} unidades · {filteredUnits.length} mostradas
+          </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button
-              className="bg-gradient-warm"
-              onClick={() => {
-                setForm(empty);
-                setOpen(true);
-              }}
-            >
-              <Plus className="mr-2 h-4 w-4" /> Nueva unidad
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Nueva unidad</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <Label>Edificio</Label>
-                <Select value={form.buildingId} onValueChange={(v) => setForm({ ...form, buildingId: v })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ownerBuildings.map((b) => (
-                      <SelectItem key={b.id} value={b.id}>
-                        {b.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Propiedad</Label>
-                <Select value={form.propertyId} onValueChange={(v) => setForm({ ...form, propertyId: v })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ownerProperties.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
-                        {p.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Número</Label>
-                <Input value={form.number} onChange={(e) => setForm({ ...form, number: e.target.value })} />
-              </div>
-              <div>
-                <Label>Estado</Label>
-                <Select
-                  value={form.status}
-                  onValueChange={(v: Unit["status"]) => setForm({ ...form, status: v })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="available">Disponible</SelectItem>
-                    <SelectItem value="rented">Alquilada</SelectItem>
-                    <SelectItem value="maintenance">Mantenimiento</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Habitaciones</Label>
-                <Input
-                  type="number"
-                  value={form.bedrooms}
-                  onChange={(e) => setForm({ ...form, bedrooms: Number(e.target.value) })}
-                />
-              </div>
-              <div>
-                <Label>Baños</Label>
-                <Input
-                  type="number"
-                  value={form.bathrooms}
-                  onChange={(e) => setForm({ ...form, bathrooms: Number(e.target.value) })}
-                />
-              </div>
-              <div>
-                <Label>Área m²</Label>
-                <Input
-                  type="number"
-                  value={form.area}
-                  onChange={(e) => setForm({ ...form, area: Number(e.target.value) })}
-                />
-              </div>
-              <div>
-                <Label>Renta €</Label>
-                <Input
-                  type="number"
-                  value={form.rent}
-                  onChange={(e) => setForm({ ...form, rent: Number(e.target.value) })}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setOpen(false)}>
-                Cancelar
+        <div className="flex items-center gap-2">
+          <Select value={filterBuilding} onValueChange={setFilterBuilding}>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los edificios</SelectItem>
+              {ownerBuildings.map((b) => (
+                <SelectItem key={b.id} value={b.id}>
+                  {b.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-warm" onClick={startNew}>
+                <Plus className="mr-2 h-4 w-4" /> Nueva unidad
               </Button>
-              <Button onClick={save} className="bg-gradient-warm">
-                Crear
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{editing ? "Editar unidad" : "Nueva unidad"}</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <Label>Título</Label>
+                  <Input
+                    value={form.title}
+                    onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <Label>Descripción</Label>
+                  <Textarea
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label>Edificio</Label>
+                  <Select
+                    value={form.buildingId}
+                    onValueChange={(v) => setForm({ ...form, buildingId: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ownerBuildings.map((b) => (
+                        <SelectItem key={b.id} value={b.id}>
+                          {b.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Número</Label>
+                  <Input
+                    value={form.number}
+                    onChange={(e) => setForm({ ...form, number: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label>Tipo</Label>
+                  <Select
+                    value={form.type}
+                    onValueChange={(v: Unit["type"]) => setForm({ ...form, type: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="apartment">Apartamento</SelectItem>
+                      <SelectItem value="house">Casa</SelectItem>
+                      <SelectItem value="studio">Estudio</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Estado</Label>
+                  <Select
+                    value={form.status}
+                    onValueChange={(v: Unit["status"]) => setForm({ ...form, status: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="available">Disponible</SelectItem>
+                      <SelectItem value="rented">Alquilada</SelectItem>
+                      <SelectItem value="maintenance">Mantenimiento</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Habitaciones</Label>
+                  <Input
+                    type="number"
+                    value={form.bedrooms}
+                    onChange={(e) => setForm({ ...form, bedrooms: Number(e.target.value) })}
+                  />
+                </div>
+                <div>
+                  <Label>Baños</Label>
+                  <Input
+                    type="number"
+                    value={form.bathrooms}
+                    onChange={(e) => setForm({ ...form, bathrooms: Number(e.target.value) })}
+                  />
+                </div>
+                <div>
+                  <Label>Área m²</Label>
+                  <Input
+                    type="number"
+                    value={form.area}
+                    onChange={(e) => setForm({ ...form, area: Number(e.target.value) })}
+                  />
+                </div>
+                <div>
+                  <Label>Renta €</Label>
+                  <Input
+                    type="number"
+                    value={form.rent}
+                    onChange={(e) => setForm({ ...form, rent: Number(e.target.value) })}
+                  />
+                </div>
+                <div className="sm:col-span-2 flex items-center gap-2">
+                  <input
+                    id="featured"
+                    type="checkbox"
+                    checked={!!form.featured}
+                    onChange={(e) => setForm({ ...form, featured: e.target.checked })}
+                  />
+                  <Label htmlFor="featured" className="cursor-pointer">
+                    Destacar en página principal
+                  </Label>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={save} className="bg-gradient-warm">
+                  {editing ? "Guardar" : "Crear"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
+
+      {ownerBuildings.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+          Aún no tienes edificios. Crea uno antes de añadir unidades.
+        </div>
+      )}
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
         <table className="w-full text-sm">
@@ -193,11 +298,14 @@ function Page() {
             </tr>
           </thead>
           <tbody>
-            {ownerUnits.map((u) => {
+            {filteredUnits.map((u) => {
               const b = ownerBuildings.find((x) => x.id === u.buildingId);
               return (
                 <tr key={u.id} className="border-t border-border">
-                  <td className="px-4 py-3 font-medium">{u.number}</td>
+                  <td className="px-4 py-3">
+                    <div className="font-medium">{u.number}</div>
+                    <div className="text-xs text-muted-foreground line-clamp-1">{u.title}</div>
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">{b?.name}</td>
                   <td className="px-4 py-3">
                     {u.bedrooms}h · {u.bathrooms}b · {u.area}m²
@@ -219,6 +327,9 @@ function Page() {
                     </Select>
                   </td>
                   <td className="px-4 py-3 text-right">
+                    <Button size="icon" variant="ghost" onClick={() => startEdit(u)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
                     <Button
                       size="icon"
                       variant="ghost"

@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type {
   User,
-  Property,
   Building,
   Unit,
   Amenity,
@@ -15,7 +14,6 @@ import type {
 } from "./types";
 import {
   seedUsers,
-  seedProperties,
   seedBuildings,
   seedUnits,
   seedAmenities,
@@ -28,10 +26,11 @@ import {
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
+export type DeleteResult = { ok: true } | { ok: false; reason: string };
+
 interface AppState {
   currentUser: User | null;
   users: User[];
-  properties: Property[];
   buildings: Building[];
   units: Unit[];
   amenities: Amenity[];
@@ -53,18 +52,14 @@ interface AppState {
   updateUser: (id: string, patch: Partial<User>) => void;
   deleteUser: (id: string) => void;
 
-  // properties
-  addProperty: (p: Omit<Property, "id">) => void;
-  updateProperty: (id: string, patch: Partial<Property>) => void;
-  deleteProperty: (id: string) => void;
-
   // buildings
   addBuilding: (b: Omit<Building, "id">) => void;
   updateBuilding: (id: string, patch: Partial<Building>) => void;
-  deleteBuilding: (id: string) => void;
+  /** Bloquea el borrado si el edificio tiene unidades. */
+  deleteBuilding: (id: string) => DeleteResult;
 
-  // units
-  addUnit: (u: Omit<Unit, "id">) => void;
+  // units (entidad alquilable)
+  addUnit: (u: Omit<Unit, "id">) => DeleteResult;
   updateUnit: (id: string, patch: Partial<Unit>) => void;
   deleteUnit: (id: string) => void;
 
@@ -93,7 +88,6 @@ export const useAppStore = create<AppState>()(
     (set, get) => ({
       currentUser: null,
       users: seedUsers,
-      properties: seedProperties,
       buildings: seedBuildings,
       units: seedUnits,
       amenities: seedAmenities,
@@ -141,22 +135,38 @@ export const useAppStore = create<AppState>()(
         set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, ...patch } : u)) })),
       deleteUser: (id) => set((s) => ({ users: s.users.filter((u) => u.id !== id) })),
 
-      addProperty: (p) => set((s) => ({ properties: [...s.properties, { ...p, id: uid() }] })),
-      updateProperty: (id, patch) =>
-        set((s) => ({
-          properties: s.properties.map((p) => (p.id === id ? { ...p, ...patch } : p)),
-        })),
-      deleteProperty: (id) =>
-        set((s) => ({ properties: s.properties.filter((p) => p.id !== id) })),
-
       addBuilding: (b) => set((s) => ({ buildings: [...s.buildings, { ...b, id: uid() }] })),
       updateBuilding: (id, patch) =>
         set((s) => ({
           buildings: s.buildings.map((b) => (b.id === id ? { ...b, ...patch } : b)),
         })),
-      deleteBuilding: (id) => set((s) => ({ buildings: s.buildings.filter((b) => b.id !== id) })),
+      deleteBuilding: (id) => {
+        const unitsInBuilding = get().units.filter((u) => u.buildingId === id);
+        if (unitsInBuilding.length > 0) {
+          return {
+            ok: false,
+            reason: `Tiene ${unitsInBuilding.length} unidad(es). Bórralas o muévelas primero.`,
+          };
+        }
+        set((s) => ({
+          buildings: s.buildings.filter((b) => b.id !== id),
+          amenities: s.amenities.filter((a) => a.buildingId !== id),
+        }));
+        return { ok: true };
+      },
 
-      addUnit: (u) => set((s) => ({ units: [...s.units, { ...u, id: uid() }] })),
+      addUnit: (u) => {
+        const building = get().buildings.find((b) => b.id === u.buildingId);
+        if (!building) return { ok: false, reason: "Edificio inválido" };
+        if (building.ownerId !== u.ownerId)
+          return { ok: false, reason: "El owner debe coincidir con el del edificio" };
+        const dup = get().units.some(
+          (x) => x.buildingId === u.buildingId && x.number.trim() === u.number.trim(),
+        );
+        if (dup) return { ok: false, reason: "Ya existe una unidad con ese número en el edificio" };
+        set((s) => ({ units: [...s.units, { ...u, id: uid() }] }));
+        return { ok: true };
+      },
       updateUnit: (id, patch) =>
         set((s) => ({ units: s.units.map((u) => (u.id === id ? { ...u, ...patch } : u)) })),
       deleteUnit: (id) => set((s) => ({ units: s.units.filter((u) => u.id !== id) })),
@@ -208,9 +218,26 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: "estate-app",
+      version: 2,
+      // v1 (Property + Unit duplicados) → v2 (sólo Unit). Reset duro: descartamos
+      // el estado viejo y rehidratamos con seeds nuevos. Sólo conservamos sesión.
+      migrate: (persisted: unknown, version) => {
+        if (version < 2) {
+          const prev = (persisted ?? {}) as { currentUser?: User | null };
+          return { currentUser: prev.currentUser ?? null };
+        }
+        return (persisted as { currentUser: User | null }) ?? { currentUser: null };
+      },
       partialize: (s) => ({ currentUser: s.currentUser }),
     },
   ),
 );
 
 export const getRole = (u: User | null): Role => u?.role ?? "public";
+
+/** Helpers de dominio (derivar fuera de selectores para no provocar re-renders). */
+export const getUnitAddress = (unit: Unit, building: Building | undefined): string =>
+  unit.addressOverride ?? building?.address ?? "";
+
+export const getUnitCity = (_unit: Unit, building: Building | undefined): string =>
+  building?.city ?? "";

@@ -1,35 +1,38 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { useAppStore } from "@/lib/store";
+import { useAppStore, getUnitAddress, getUnitCity } from "@/lib/store";
 import { PublicNavbar, Footer } from "@/components/site/PublicNavbar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Bed, Bath, Square, MapPin, Building2, Heart, Share2 } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/properties/$propertyId")({
+export const Route = createFileRoute("/units/$unitId")({
   component: Page,
 });
 
 function Page() {
-  const { propertyId } = Route.useParams();
-  const property = useAppStore((s) => s.properties.find((p) => p.id === propertyId));
+  const { unitId } = Route.useParams();
+  const units = useAppStore((s) => s.units);
   const buildings = useAppStore((s) => s.buildings);
   const allAmenities = useAppStore((s) => s.amenities);
-  const building = buildings.find((b) => b.id === property?.buildingId);
-  const amenities = allAmenities.filter((a) => a.buildingId === building?.id);
   const user = useAppStore((s) => s.currentUser);
   const createReq = useAppStore((s) => s.createRentalRequest);
   const nav = useNavigate();
   const [msg, setMsg] = useState("");
-  if (!property) {
+
+  const unit = units.find((u) => u.id === unitId);
+  const building = buildings.find((b) => b.id === unit?.buildingId);
+  const amenities = allAmenities.filter((a) => a.buildingId === building?.id);
+
+  if (!unit) {
     return (
       <div className="min-h-screen">
         <PublicNavbar />
         <div className="mx-auto max-w-3xl p-12 text-center">
-          <h2 className="font-display text-2xl font-bold">Propiedad no encontrada</h2>
+          <h2 className="font-display text-2xl font-bold">Unidad no encontrada</h2>
           <Button asChild className="mt-4">
-            <Link to="/properties">Volver al listado</Link>
+            <Link to="/units">Volver al listado</Link>
           </Button>
         </div>
       </div>
@@ -47,14 +50,17 @@ function Page() {
       return;
     }
     createReq({
-      propertyId: property.id,
+      unitId: unit.id,
       tenantId: user.id,
-      ownerId: property.ownerId,
-      message: msg || "Estoy interesado/a en esta propiedad.",
+      ownerId: unit.ownerId,
+      message: msg || "Estoy interesado/a en esta unidad.",
     });
     setMsg("");
     toast.success("Solicitud enviada al propietario");
   };
+
+  const city = getUnitCity(unit, building);
+  const address = getUnitAddress(unit, building);
 
   return (
     <div className="min-h-screen bg-background">
@@ -62,9 +68,9 @@ function Page() {
       <section className="mx-auto max-w-7xl px-6 py-8">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h1 className="font-display text-3xl font-bold">{property.title}</h1>
+            <h1 className="font-display text-3xl font-bold">{unit.title}</h1>
             <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4" /> {property.address} · {property.city}
+              <MapPin className="h-4 w-4" /> {address} · {city}
             </p>
           </div>
           <div className="hidden gap-2 sm:flex">
@@ -79,11 +85,11 @@ function Page() {
 
         <div className="mt-6 grid gap-2 overflow-hidden rounded-2xl sm:grid-cols-4 sm:grid-rows-2">
           <img
-            src={property.images[0]}
-            alt={property.title}
+            src={unit.images[0]}
+            alt={unit.title}
             className="h-full w-full object-cover sm:col-span-2 sm:row-span-2"
           />
-          {property.images.slice(1, 5).map((img, i) => (
+          {unit.images.slice(1, 5).map((img, i) => (
             <img
               key={i}
               src={img}
@@ -97,16 +103,16 @@ function Page() {
         <div className="mt-10 grid gap-10 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <div className="flex flex-wrap items-center gap-6 border-b border-border pb-6">
-              <Stat icon={<Bed className="h-4 w-4" />} label="Habitaciones" value={property.bedrooms} />
-              <Stat icon={<Bath className="h-4 w-4" />} label="Baños" value={property.bathrooms} />
-              <Stat icon={<Square className="h-4 w-4" />} label="Área" value={`${property.area} m²`} />
+              <Stat icon={<Bed className="h-4 w-4" />} label="Habitaciones" value={unit.bedrooms} />
+              <Stat icon={<Bath className="h-4 w-4" />} label="Baños" value={unit.bathrooms} />
+              <Stat icon={<Square className="h-4 w-4" />} label="Área" value={`${unit.area} m²`} />
               {building && (
                 <Stat icon={<Building2 className="h-4 w-4" />} label="Edificio" value={building.name} />
               )}
             </div>
 
-            <h2 className="mt-8 font-display text-xl font-bold">Sobre esta propiedad</h2>
-            <p className="mt-3 leading-relaxed text-muted-foreground">{property.description}</p>
+            <h2 className="mt-8 font-display text-xl font-bold">Sobre esta unidad</h2>
+            <p className="mt-3 leading-relaxed text-muted-foreground">{unit.description}</p>
 
             {amenities.length > 0 && (
               <>
@@ -130,7 +136,7 @@ function Page() {
             <div className="rounded-2xl border border-border bg-card p-6 shadow-elegant">
               <div className="flex items-baseline gap-1">
                 <span className="font-display text-3xl font-bold">
-                  €{property.price.toLocaleString()}
+                  €{unit.rent.toLocaleString("es-ES")}
                 </span>
                 <span className="text-sm text-muted-foreground">/mes</span>
               </div>
@@ -142,8 +148,12 @@ function Page() {
                 placeholder="Hola, me gustaría más información..."
                 className="mt-5 min-h-24"
               />
-              <Button onClick={submit} className="mt-3 w-full bg-gradient-warm">
-                Solicitar alquiler
+              <Button
+                onClick={submit}
+                className="mt-3 w-full bg-gradient-warm"
+                disabled={unit.status !== "available"}
+              >
+                {unit.status === "available" ? "Solicitar alquiler" : "No disponible"}
               </Button>
               {!user && (
                 <p className="mt-3 text-center text-xs text-muted-foreground">

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useAppStore } from "@/lib/store";
-import { Users, Building2, Home, FileText } from "lucide-react";
+import { Users, Building2, DoorOpen, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/admin/")({
   component: Page,
@@ -8,7 +8,7 @@ export const Route = createFileRoute("/admin/")({
 
 function Page() {
   const usersCount = useAppStore((s) => s.users.length);
-  const propertiesCount = useAppStore((s) => s.properties.length);
+  const unitsCount = useAppStore((s) => s.units.length);
   const buildingsCount = useAppStore((s) => s.buildings.length);
   const contractsCount = useAppStore((s) => s.contracts.length);
 
@@ -21,7 +21,7 @@ function Page() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Usuarios" value={usersCount} icon={<Users className="h-5 w-5" />} />
-        <StatCard label="Propiedades" value={propertiesCount} icon={<Home className="h-5 w-5" />} />
+        <StatCard label="Unidades" value={unitsCount} icon={<DoorOpen className="h-5 w-5" />} />
         <StatCard label="Edificios" value={buildingsCount} icon={<Building2 className="h-5 w-5" />} />
         <StatCard label="Contratos activos" value={contractsCount} icon={<FileText className="h-5 w-5" />} />
       </div>

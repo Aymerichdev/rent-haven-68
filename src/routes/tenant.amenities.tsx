@@ -14,7 +14,7 @@ export const Route = createFileRoute("/tenant/amenities")({
 function Page() {
   const user = useAppStore((s) => s.currentUser);
   const contracts = useAppStore((s) => s.contracts);
-  const properties = useAppStore((s) => s.properties);
+  const units = useAppStore((s) => s.units);
   const buildings = useAppStore((s) => s.buildings);
   const amenities = useAppStore((s) => s.amenities);
   const myBookings = useAppStore((s) => s.bookings);
@@ -24,8 +24,8 @@ function Page() {
   const create = useAppStore((s) => s.createBooking);
 
   const myBuildingIds = tenantContracts
-    .map((c) => properties.find((p) => p.id === c.propertyId)?.buildingId)
-    .filter(Boolean) as string[];
+    .map((c) => units.find((u) => u.id === c.unitId)?.buildingId)
+    .filter((id): id is string => Boolean(id));
   const available = amenities.filter((a) => myBuildingIds.includes(a.buildingId) && a.bookable);
 
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));

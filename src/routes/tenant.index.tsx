@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useAppStore } from "@/lib/store";
+import { useAppStore, getUnitAddress, getUnitCity } from "@/lib/store";
 import { Home, FileText, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -11,7 +11,8 @@ function Page() {
   const user = useAppStore((s) => s.currentUser);
   const contracts = useAppStore((s) => s.contracts);
   const payments = useAppStore((s) => s.payments);
-  const properties = useAppStore((s) => s.properties);
+  const units = useAppStore((s) => s.units);
+  const buildings = useAppStore((s) => s.buildings);
 
   const tenantContracts = contracts.filter((c) => c.tenantId === user?.id);
   const tenantPayments = payments.filter((p) => p.tenantId === user?.id);
@@ -32,15 +33,16 @@ function Page() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         {tenantContracts.map((c) => {
-          const p = properties.find((x) => x.id === c.propertyId);
-          if (!p) return null;
+          const u = units.find((x) => x.id === c.unitId);
+          const b = buildings.find((x) => x.id === u?.buildingId);
+          if (!u) return null;
           return (
             <div key={c.id} className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-              <img src={p.images[0]} alt="" loading="lazy" className="h-40 w-full object-cover" />
+              <img src={u.images[0]} alt="" loading="lazy" className="h-40 w-full object-cover" />
               <div className="p-5">
-                <h3 className="font-display text-lg font-bold">{p.title}</h3>
+                <h3 className="font-display text-lg font-bold">{u.title}</h3>
                 <p className="text-sm text-muted-foreground">
-                  {p.address} · {p.city}
+                  {getUnitAddress(u, b)} · {getUnitCity(u, b)}
                 </p>
                 <div className="mt-3 flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Renta mensual</span>
