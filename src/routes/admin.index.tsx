@@ -7,14 +7,10 @@ export const Route = createFileRoute("/admin/")({
 });
 
 function Page() {
-  const s = useAppStore.getState();
-  const stats = useAppStore((st) => ({
-    users: st.users.length,
-    properties: st.properties.length,
-    buildings: st.buildings.length,
-    contracts: st.contracts.length,
-  }));
-  void s;
+  const usersCount = useAppStore((s) => s.users.length);
+  const propertiesCount = useAppStore((s) => s.properties.length);
+  const buildingsCount = useAppStore((s) => s.buildings.length);
+  const contractsCount = useAppStore((s) => s.contracts.length);
 
   return (
     <div className="space-y-6">
@@ -24,18 +20,10 @@ function Page() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Usuarios" value={stats.users} icon={<Users className="h-5 w-5" />} />
-        <StatCard label="Propiedades" value={stats.properties} icon={<Home className="h-5 w-5" />} />
-        <StatCard
-          label="Edificios"
-          value={stats.buildings}
-          icon={<Building2 className="h-5 w-5" />}
-        />
-        <StatCard
-          label="Contratos activos"
-          value={stats.contracts}
-          icon={<FileText className="h-5 w-5" />}
-        />
+        <StatCard label="Usuarios" value={usersCount} icon={<Users className="h-5 w-5" />} />
+        <StatCard label="Propiedades" value={propertiesCount} icon={<Home className="h-5 w-5" />} />
+        <StatCard label="Edificios" value={buildingsCount} icon={<Building2 className="h-5 w-5" />} />
+        <StatCard label="Contratos activos" value={contractsCount} icon={<FileText className="h-5 w-5" />} />
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-6">

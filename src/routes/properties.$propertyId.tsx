@@ -16,14 +16,12 @@ function Page() {
   const property = useAppStore((s) => s.properties.find((p) => p.id === propertyId));
   const buildings = useAppStore((s) => s.buildings);
   const allAmenities = useAppStore((s) => s.amenities);
+  const building = buildings.find((b) => b.id === property?.buildingId);
+  const amenities = allAmenities.filter((a) => a.buildingId === building?.id);
   const user = useAppStore((s) => s.currentUser);
   const createReq = useAppStore((s) => s.createRentalRequest);
   const nav = useNavigate();
   const [msg, setMsg] = useState("");
-
-  const building = buildings.find((b) => b.id === property?.buildingId);
-  const amenities = allAmenities.filter((a) => a.buildingId === building?.id);
-
   if (!property) {
     return (
       <div className="min-h-screen">
