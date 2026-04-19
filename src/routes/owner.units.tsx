@@ -89,19 +89,23 @@ function Page() {
   };
 
   const save = () => {
-    if (!form.buildingId) return toast.error("Selecciona un edificio");
     if (!form.number.trim()) return toast.error("El número es obligatorio");
     if (!form.title.trim()) return toast.error("El título es obligatorio");
+    if (!form.buildingId) {
+      if (!form.addressOverride?.trim() || !form.cityOverride?.trim())
+        return toast.error("Sin edificio: dirección y ciudad son obligatorias");
+    }
 
     if (editing) {
-      // chequeo de duplicado al renombrar
-      const dup = ownerUnits.some(
-        (x) =>
-          x.id !== editing.id &&
-          x.buildingId === form.buildingId &&
-          x.number.trim() === form.number.trim(),
-      );
-      if (dup) return toast.error("Ya existe una unidad con ese número en el edificio");
+      if (form.buildingId) {
+        const dup = ownerUnits.some(
+          (x) =>
+            x.id !== editing.id &&
+            x.buildingId === form.buildingId &&
+            x.number.trim() === form.number.trim(),
+        );
+        if (dup) return toast.error("Ya existe una unidad con ese número en el edificio");
+      }
       upd(editing.id, form);
       toast.success("Unidad actualizada");
     } else {
