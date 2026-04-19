@@ -57,7 +57,7 @@ function Page() {
   );
 
   const buildEmpty = (): Omit<Unit, "id"> => ({
-    buildingId: ownerBuildings[0]?.id ?? "",
+    buildingId: ownerBuildings[0]?.id,
     ownerId: user?.id ?? "",
     number: "",
     title: "",
@@ -76,10 +76,6 @@ function Page() {
   const [form, setForm] = useState<Omit<Unit, "id">>(buildEmpty);
 
   const startNew = () => {
-    if (ownerBuildings.length === 0) {
-      toast.error("Crea primero un edificio");
-      return;
-    }
     setEditing(null);
     setForm(buildEmpty());
     setOpen(true);
