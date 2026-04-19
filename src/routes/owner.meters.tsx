@@ -21,14 +21,18 @@ export const Route = createFileRoute("/owner/meters")({
 
 function Page() {
   const user = useAppStore((s) => s.currentUser);
-  const buildings = useAppStore((s) => s.buildings.filter((b) => b.ownerId === user?.id));
-  const units = useAppStore((s) => s.units.filter((u) => buildings.some((b) => b.id === u.buildingId)));
-  const meters = useAppStore((s) => s.meters.filter((m) => units.some((u) => u.id === m.unitId)));
+  const buildings = useAppStore((s) => s.buildings);
+  const units = useAppStore((s) => s.units);
+  const meters = useAppStore((s) => s.meters);
+
+  const ownerBuildings = buildings.filter((b) => b.ownerId === user?.id);
+  const ownerUnits = units.filter((u) => ownerBuildings.some((b) => b.id === u.buildingId));
+  const ownerMeters = meters.filter((m) => ownerUnits.some((u) => u.id === m.unitId));
   const add = useAppStore((s) => s.addMeter);
   const del = useAppStore((s) => s.deleteMeter);
 
   const [form, setForm] = useState<Omit<Meter, "id">>({
-    unitId: units[0]?.id ?? "",
+    unitId: ownerUnits[0]?.id ?? "",
     type: "water",
     reading: 0,
     date: new Date().toISOString().slice(0, 10),
@@ -51,7 +55,7 @@ function Page() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {units.map((u) => (
+              {ownerUnits.map((u) => (
                 <SelectItem key={u.id} value={u.id}>
                   {u.number}
                 </SelectItem>
@@ -106,8 +110,8 @@ function Page() {
             </tr>
           </thead>
           <tbody>
-            {meters.map((m) => {
-              const u = units.find((x) => x.id === m.unitId);
+            {ownerMeters.map((m) => {
+              const u = ownerUnits.find((x) => x.id === m.unitId);
               return (
                 <tr key={m.id} className="border-t border-border">
                   <td className="px-4 py-3 font-medium">{u?.number}</td>

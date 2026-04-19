@@ -11,8 +11,11 @@ export const Route = createFileRoute("/owner/requests")({
 
 function Page() {
   const user = useAppStore((s) => s.currentUser);
-  const requests = useAppStore((s) => s.requests.filter((r) => r.ownerId === user?.id));
-  const bookings = useAppStore((s) => s.bookings.filter((b) => b.ownerId === user?.id));
+  const requests = useAppStore((s) => s.requests);
+  const bookings = useAppStore((s) => s.bookings);
+
+  const ownerRequests = requests.filter((r) => r.ownerId === user?.id);
+  const ownerBookings = bookings.filter((b) => b.ownerId === user?.id);
   const properties = useAppStore((s) => s.properties);
   const amenities = useAppStore((s) => s.amenities);
   const users = useAppStore((s) => s.users);
@@ -30,15 +33,15 @@ function Page() {
 
       <section>
         <h2 className="mb-3 inline-flex items-center gap-2 font-display text-lg font-bold">
-          <Home className="h-5 w-5 text-primary" /> Alquileres ({requests.length})
+          <Home className="h-5 w-5 text-primary" /> Alquileres ({ownerRequests.length})
         </h2>
-        {requests.length === 0 ? (
+        {ownerRequests.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border p-6 text-sm text-muted-foreground">
             Sin solicitudes.
           </p>
         ) : (
           <div className="space-y-3">
-            {requests.map((r) => {
+            {ownerRequests.map((r) => {
               const p = properties.find((x) => x.id === r.propertyId);
               const tenant = users.find((x) => x.id === r.tenantId);
               return (
@@ -98,15 +101,15 @@ function Page() {
 
       <section>
         <h2 className="mb-3 inline-flex items-center gap-2 font-display text-lg font-bold">
-          <Sparkles className="h-5 w-5 text-primary" /> Reservas de amenidades ({bookings.length})
+          <Sparkles className="h-5 w-5 text-primary" /> Reservas de amenidades ({ownerBookings.length})
         </h2>
-        {bookings.length === 0 ? (
+        {ownerBookings.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border p-6 text-sm text-muted-foreground">
             Sin reservas.
           </p>
         ) : (
           <div className="space-y-3">
-            {bookings.map((b) => {
+            {ownerBookings.map((b) => {
               const a = amenities.find((x) => x.id === b.amenityId);
               const t = users.find((x) => x.id === b.tenantId);
               return (

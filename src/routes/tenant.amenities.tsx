@@ -13,14 +13,17 @@ export const Route = createFileRoute("/tenant/amenities")({
 
 function Page() {
   const user = useAppStore((s) => s.currentUser);
-  const contracts = useAppStore((s) => s.contracts.filter((c) => c.tenantId === user?.id));
+  const contracts = useAppStore((s) => s.contracts);
   const properties = useAppStore((s) => s.properties);
   const buildings = useAppStore((s) => s.buildings);
   const amenities = useAppStore((s) => s.amenities);
-  const myBookings = useAppStore((s) => s.bookings.filter((b) => b.tenantId === user?.id));
+  const myBookings = useAppStore((s) => s.bookings);
+
+  const tenantContracts = contracts.filter((c) => c.tenantId === user?.id);
+  const tenantBookings = myBookings.filter((b) => b.tenantId === user?.id);
   const create = useAppStore((s) => s.createBooking);
 
-  const myBuildingIds = contracts
+  const myBuildingIds = tenantContracts
     .map((c) => properties.find((p) => p.id === c.propertyId)?.buildingId)
     .filter(Boolean) as string[];
   const available = amenities.filter((a) => myBuildingIds.includes(a.buildingId) && a.bookable);
@@ -85,13 +88,13 @@ function Page() {
 
       <div>
         <h2 className="mb-3 font-display text-lg font-bold">Mis reservas</h2>
-        {myBookings.length === 0 ? (
+        {tenantBookings.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border p-6 text-sm text-muted-foreground">
             Aún no has reservado nada.
           </p>
         ) : (
           <div className="space-y-2">
-            {myBookings.map((b) => {
+            {tenantBookings.map((b) => {
               const a = amenities.find((x) => x.id === b.amenityId);
               return (
                 <div

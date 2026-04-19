@@ -30,17 +30,21 @@ export const Route = createFileRoute("/owner/units")({
 
 function Page() {
   const user = useAppStore((s) => s.currentUser);
-  const buildings = useAppStore((s) => s.buildings.filter((b) => b.ownerId === user?.id));
-  const properties = useAppStore((s) => s.properties.filter((p) => p.ownerId === user?.id));
-  const units = useAppStore((s) => s.units.filter((u) => buildings.some((b) => b.id === u.buildingId)));
+  const buildings = useAppStore((s) => s.buildings);
+  const properties = useAppStore((s) => s.properties);
+  const units = useAppStore((s) => s.units);
+
+  const ownerBuildings = buildings.filter((b) => b.ownerId === user?.id);
+  const ownerProperties = properties.filter((p) => p.ownerId === user?.id);
+  const ownerUnits = units.filter((u) => ownerBuildings.some((b) => b.id === u.buildingId));
   const add = useAppStore((s) => s.addUnit);
   const del = useAppStore((s) => s.deleteUnit);
   const upd = useAppStore((s) => s.updateUnit);
 
   const [open, setOpen] = useState(false);
   const empty: Omit<Unit, "id"> = {
-    buildingId: buildings[0]?.id ?? "",
-    propertyId: properties[0]?.id ?? "",
+    buildingId: ownerBuildings[0]?.id ?? "",
+    propertyId: ownerProperties[0]?.id ?? "",
     number: "",
     bedrooms: 1,
     bathrooms: 1,
@@ -62,7 +66,7 @@ function Page() {
       <div className="flex items-end justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold sm:text-3xl">Unidades</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{units.length} unidades</p>
+          <p className="mt-1 text-sm text-muted-foreground">{ownerUnits.length} unidades</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -88,7 +92,7 @@ function Page() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {buildings.map((b) => (
+                    {ownerBuildings.map((b) => (
                       <SelectItem key={b.id} value={b.id}>
                         {b.name}
                       </SelectItem>
@@ -103,7 +107,7 @@ function Page() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {properties.map((p) => (
+                    {ownerProperties.map((p) => (
                       <SelectItem key={p.id} value={p.id}>
                         {p.title}
                       </SelectItem>
@@ -189,8 +193,8 @@ function Page() {
             </tr>
           </thead>
           <tbody>
-            {units.map((u) => {
-              const b = buildings.find((x) => x.id === u.buildingId);
+            {ownerUnits.map((u) => {
+              const b = ownerBuildings.find((x) => x.id === u.buildingId);
               return (
                 <tr key={u.id} className="border-t border-border">
                   <td className="px-4 py-3 font-medium">{u.number}</td>

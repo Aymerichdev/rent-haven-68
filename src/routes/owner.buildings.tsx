@@ -22,7 +22,8 @@ export const Route = createFileRoute("/owner/buildings")({
 
 function Page() {
   const user = useAppStore((s) => s.currentUser);
-  const buildings = useAppStore((s) => s.buildings.filter((b) => b.ownerId === user?.id));
+  const buildings = useAppStore((s) => s.buildings);
+  const ownerBuildings = buildings.filter((b) => b.ownerId === user?.id);
   const add = useAppStore((s) => s.addBuilding);
   const upd = useAppStore((s) => s.updateBuilding);
   const del = useAppStore((s) => s.deleteBuilding);
@@ -55,7 +56,7 @@ function Page() {
       <div className="flex items-end justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold sm:text-3xl">Edificios</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{buildings.length} en tu portafolio</p>
+          <p className="mt-1 text-sm text-muted-foreground">{ownerBuildings.length} en tu portafolio</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -101,7 +102,7 @@ function Page() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {buildings.map((b) => (
+        {ownerBuildings.map((b) => (
           <div key={b.id} className="rounded-2xl border border-border bg-card p-5 shadow-card">
             <div className="flex items-start justify-between">
               <div>

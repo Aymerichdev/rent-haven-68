@@ -28,10 +28,11 @@ export const Route = createFileRoute("/owner/amenities")({
 
 function Page() {
   const user = useAppStore((s) => s.currentUser);
-  const buildings = useAppStore((s) => s.buildings.filter((b) => b.ownerId === user?.id));
-  const amenities = useAppStore((s) =>
-    s.amenities.filter((a) => buildings.some((b) => b.id === a.buildingId)),
-  );
+  const buildings = useAppStore((s) => s.buildings);
+  const amenities = useAppStore((s) => s.amenities);
+
+  const ownerBuildings = buildings.filter((b) => b.ownerId === user?.id);
+  const ownerAmenities = amenities.filter((a) => ownerBuildings.some((b) => b.id === a.buildingId));
   const add = useAppStore((s) => s.addAmenity);
   const del = useAppStore((s) => s.deleteAmenity);
 
@@ -39,7 +40,7 @@ function Page() {
   const [form, setForm] = useState({
     name: "",
     icon: "🏊",
-    buildingId: buildings[0]?.id ?? "",
+    buildingId: ownerBuildings[0]?.id ?? "",
     bookable: true,
   });
 
@@ -78,7 +79,7 @@ function Page() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {buildings.map((b) => (
+                    {ownerBuildings.map((b) => (
                       <SelectItem key={b.id} value={b.id}>
                         {b.name}
                       </SelectItem>
@@ -108,8 +109,8 @@ function Page() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {amenities.map((a) => {
-          const b = buildings.find((x) => x.id === a.buildingId);
+        {ownerAmenities.map((a) => {
+          const b = ownerBuildings.find((x) => x.id === a.buildingId);
           return (
             <div
               key={a.id}

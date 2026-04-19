@@ -8,14 +8,15 @@ export const Route = createFileRoute("/owner/")({
 
 function Page() {
   const user = useAppStore((s) => s.currentUser);
-  const properties = useAppStore((s) => s.properties.filter((p) => p.ownerId === user?.id));
-  const buildings = useAppStore((s) => s.buildings.filter((b) => b.ownerId === user?.id));
-  const units = useAppStore((s) =>
-    s.units.filter((u) => buildings.some((b) => b.id === u.buildingId)),
-  );
-  const requests = useAppStore((s) =>
-    s.requests.filter((r) => r.ownerId === user?.id && r.status === "pending"),
-  );
+  const properties = useAppStore((s) => s.properties);
+  const buildings = useAppStore((s) => s.buildings);
+  const units = useAppStore((s) => s.units);
+  const requests = useAppStore((s) => s.requests);
+
+  const ownerProperties = properties.filter((p) => p.ownerId === user?.id);
+  const ownerBuildings = buildings.filter((b) => b.ownerId === user?.id);
+  const ownerUnits = units.filter((u) => ownerBuildings.some((b) => b.id === u.buildingId));
+  const pendingRequests = requests.filter((r) => r.ownerId === user?.id && r.status === "pending");
 
   return (
     <div className="space-y-6">
@@ -25,12 +26,12 @@ function Page() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Propiedades" value={properties.length} icon={<Home className="h-5 w-5" />} />
-        <Stat label="Edificios" value={buildings.length} icon={<Building2 className="h-5 w-5" />} />
-        <Stat label="Unidades" value={units.length} icon={<DoorOpen className="h-5 w-5" />} />
+        <Stat label="Propiedades" value={ownerProperties.length} icon={<Home className="h-5 w-5" />} />
+        <Stat label="Edificios" value={ownerBuildings.length} icon={<Building2 className="h-5 w-5" />} />
+        <Stat label="Unidades" value={ownerUnits.length} icon={<DoorOpen className="h-5 w-5" />} />
         <Stat
           label="Solicitudes pendientes"
-          value={requests.length}
+          value={pendingRequests.length}
           icon={<Inbox className="h-5 w-5" />}
           accent
         />
@@ -39,11 +40,11 @@ function Page() {
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-6">
           <h2 className="font-display text-lg font-bold">Solicitudes recientes</h2>
-          {requests.length === 0 ? (
+          {pendingRequests.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">No tienes solicitudes pendientes.</p>
           ) : (
             <ul className="mt-3 space-y-2">
-              {requests.slice(0, 4).map((r) => (
+              {pendingRequests.slice(0, 4).map((r) => (
                 <li
                   key={r.id}
                   className="flex items-center justify-between rounded-lg bg-secondary/60 px-3 py-2 text-sm"
