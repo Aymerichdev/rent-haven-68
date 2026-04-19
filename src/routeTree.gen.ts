@@ -20,7 +20,12 @@ import { Route as PropertiesIndexRouteImport } from './routes/properties.index'
 import { Route as OwnerIndexRouteImport } from './routes/owner.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as PropertiesPropertyIdRouteImport } from './routes/properties.$propertyId'
+import { Route as OwnerUnitsRouteImport } from './routes/owner.units'
+import { Route as OwnerRequestsRouteImport } from './routes/owner.requests'
 import { Route as OwnerPropertiesRouteImport } from './routes/owner.properties'
+import { Route as OwnerMetersRouteImport } from './routes/owner.meters'
+import { Route as OwnerBuildingsRouteImport } from './routes/owner.buildings'
+import { Route as OwnerAmenitiesRouteImport } from './routes/owner.amenities'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 
 const RegisterRoute = RegisterRouteImport.update({
@@ -78,9 +83,34 @@ const PropertiesPropertyIdRoute = PropertiesPropertyIdRouteImport.update({
   path: '/properties/$propertyId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OwnerUnitsRoute = OwnerUnitsRouteImport.update({
+  id: '/units',
+  path: '/units',
+  getParentRoute: () => OwnerRoute,
+} as any)
+const OwnerRequestsRoute = OwnerRequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
+  getParentRoute: () => OwnerRoute,
+} as any)
 const OwnerPropertiesRoute = OwnerPropertiesRouteImport.update({
   id: '/properties',
   path: '/properties',
+  getParentRoute: () => OwnerRoute,
+} as any)
+const OwnerMetersRoute = OwnerMetersRouteImport.update({
+  id: '/meters',
+  path: '/meters',
+  getParentRoute: () => OwnerRoute,
+} as any)
+const OwnerBuildingsRoute = OwnerBuildingsRouteImport.update({
+  id: '/buildings',
+  path: '/buildings',
+  getParentRoute: () => OwnerRoute,
+} as any)
+const OwnerAmenitiesRoute = OwnerAmenitiesRouteImport.update({
+  id: '/amenities',
+  path: '/amenities',
   getParentRoute: () => OwnerRoute,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -98,7 +128,12 @@ export interface FileRoutesByFullPath {
   '/owner': typeof OwnerRouteWithChildren
   '/register': typeof RegisterRoute
   '/admin/users': typeof AdminUsersRoute
+  '/owner/amenities': typeof OwnerAmenitiesRoute
+  '/owner/buildings': typeof OwnerBuildingsRoute
+  '/owner/meters': typeof OwnerMetersRoute
   '/owner/properties': typeof OwnerPropertiesRoute
+  '/owner/requests': typeof OwnerRequestsRoute
+  '/owner/units': typeof OwnerUnitsRoute
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
   '/admin/': typeof AdminIndexRoute
   '/owner/': typeof OwnerIndexRoute
@@ -111,7 +146,12 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/admin/users': typeof AdminUsersRoute
+  '/owner/amenities': typeof OwnerAmenitiesRoute
+  '/owner/buildings': typeof OwnerBuildingsRoute
+  '/owner/meters': typeof OwnerMetersRoute
   '/owner/properties': typeof OwnerPropertiesRoute
+  '/owner/requests': typeof OwnerRequestsRoute
+  '/owner/units': typeof OwnerUnitsRoute
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
   '/admin': typeof AdminIndexRoute
   '/owner': typeof OwnerIndexRoute
@@ -127,7 +167,12 @@ export interface FileRoutesById {
   '/owner': typeof OwnerRouteWithChildren
   '/register': typeof RegisterRoute
   '/admin/users': typeof AdminUsersRoute
+  '/owner/amenities': typeof OwnerAmenitiesRoute
+  '/owner/buildings': typeof OwnerBuildingsRoute
+  '/owner/meters': typeof OwnerMetersRoute
   '/owner/properties': typeof OwnerPropertiesRoute
+  '/owner/requests': typeof OwnerRequestsRoute
+  '/owner/units': typeof OwnerUnitsRoute
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
   '/admin/': typeof AdminIndexRoute
   '/owner/': typeof OwnerIndexRoute
@@ -144,7 +189,12 @@ export interface FileRouteTypes {
     | '/owner'
     | '/register'
     | '/admin/users'
+    | '/owner/amenities'
+    | '/owner/buildings'
+    | '/owner/meters'
     | '/owner/properties'
+    | '/owner/requests'
+    | '/owner/units'
     | '/properties/$propertyId'
     | '/admin/'
     | '/owner/'
@@ -157,7 +207,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/admin/users'
+    | '/owner/amenities'
+    | '/owner/buildings'
+    | '/owner/meters'
     | '/owner/properties'
+    | '/owner/requests'
+    | '/owner/units'
     | '/properties/$propertyId'
     | '/admin'
     | '/owner'
@@ -172,7 +227,12 @@ export interface FileRouteTypes {
     | '/owner'
     | '/register'
     | '/admin/users'
+    | '/owner/amenities'
+    | '/owner/buildings'
+    | '/owner/meters'
     | '/owner/properties'
+    | '/owner/requests'
+    | '/owner/units'
     | '/properties/$propertyId'
     | '/admin/'
     | '/owner/'
@@ -270,11 +330,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PropertiesPropertyIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/owner/units': {
+      id: '/owner/units'
+      path: '/units'
+      fullPath: '/owner/units'
+      preLoaderRoute: typeof OwnerUnitsRouteImport
+      parentRoute: typeof OwnerRoute
+    }
+    '/owner/requests': {
+      id: '/owner/requests'
+      path: '/requests'
+      fullPath: '/owner/requests'
+      preLoaderRoute: typeof OwnerRequestsRouteImport
+      parentRoute: typeof OwnerRoute
+    }
     '/owner/properties': {
       id: '/owner/properties'
       path: '/properties'
       fullPath: '/owner/properties'
       preLoaderRoute: typeof OwnerPropertiesRouteImport
+      parentRoute: typeof OwnerRoute
+    }
+    '/owner/meters': {
+      id: '/owner/meters'
+      path: '/meters'
+      fullPath: '/owner/meters'
+      preLoaderRoute: typeof OwnerMetersRouteImport
+      parentRoute: typeof OwnerRoute
+    }
+    '/owner/buildings': {
+      id: '/owner/buildings'
+      path: '/buildings'
+      fullPath: '/owner/buildings'
+      preLoaderRoute: typeof OwnerBuildingsRouteImport
+      parentRoute: typeof OwnerRoute
+    }
+    '/owner/amenities': {
+      id: '/owner/amenities'
+      path: '/amenities'
+      fullPath: '/owner/amenities'
+      preLoaderRoute: typeof OwnerAmenitiesRouteImport
       parentRoute: typeof OwnerRoute
     }
     '/admin/users': {
@@ -300,12 +395,22 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface OwnerRouteChildren {
+  OwnerAmenitiesRoute: typeof OwnerAmenitiesRoute
+  OwnerBuildingsRoute: typeof OwnerBuildingsRoute
+  OwnerMetersRoute: typeof OwnerMetersRoute
   OwnerPropertiesRoute: typeof OwnerPropertiesRoute
+  OwnerRequestsRoute: typeof OwnerRequestsRoute
+  OwnerUnitsRoute: typeof OwnerUnitsRoute
   OwnerIndexRoute: typeof OwnerIndexRoute
 }
 
 const OwnerRouteChildren: OwnerRouteChildren = {
+  OwnerAmenitiesRoute: OwnerAmenitiesRoute,
+  OwnerBuildingsRoute: OwnerBuildingsRoute,
+  OwnerMetersRoute: OwnerMetersRoute,
   OwnerPropertiesRoute: OwnerPropertiesRoute,
+  OwnerRequestsRoute: OwnerRequestsRoute,
+  OwnerUnitsRoute: OwnerUnitsRoute,
   OwnerIndexRoute: OwnerIndexRoute,
 }
 
