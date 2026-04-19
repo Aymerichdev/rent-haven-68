@@ -257,6 +257,31 @@ function Page() {
                     onChange={(e) => setForm({ ...form, rent: Number(e.target.value) })}
                   />
                 </div>
+                {!form.buildingId && (
+                  <>
+                    <div className="sm:col-span-2">
+                      <p className="text-xs text-muted-foreground">
+                        Como esta unidad es independiente, indica su dirección y ciudad propias:
+                      </p>
+                    </div>
+                    <div>
+                      <Label>Dirección *</Label>
+                      <Input
+                        value={form.addressOverride ?? ""}
+                        onChange={(e) =>
+                          setForm({ ...form, addressOverride: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label>Ciudad *</Label>
+                      <Input
+                        value={form.cityOverride ?? ""}
+                        onChange={(e) => setForm({ ...form, cityOverride: e.target.value })}
+                      />
+                    </div>
+                  </>
+                )}
                 <div className="sm:col-span-2 flex items-center gap-2">
                   <input
                     id="featured"
@@ -282,11 +307,6 @@ function Page() {
         </div>
       </div>
 
-      {ownerBuildings.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-          Aún no tienes edificios. Crea uno antes de añadir unidades.
-        </div>
-      )}
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
         <table className="w-full text-sm">
@@ -309,7 +329,22 @@ function Page() {
                     <div className="font-medium">{u.number}</div>
                     <div className="text-xs text-muted-foreground line-clamp-1">{u.title}</div>
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{b?.name}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {b ? (
+                      <Link
+                        to="/owner/buildings/$buildingId"
+                        params={{ buildingId: b.id }}
+                        className="inline-flex items-center gap-1 text-foreground hover:text-primary hover:underline"
+                      >
+                        <Building2 className="h-3.5 w-3.5" />
+                        {b.name}
+                      </Link>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs italic">
+                        Independiente
+                      </span>
+                    )}
+                  </td>
                   <td className="px-4 py-3">
                     {u.bedrooms}h · {u.bathrooms}b · {u.area}m²
                   </td>
