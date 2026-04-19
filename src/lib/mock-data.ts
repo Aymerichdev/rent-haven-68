@@ -59,6 +59,9 @@ export const seedBuildings: Building[] = [
     city: "Madrid",
     ownerId: "u2",
     amenityIds: ["a1", "a2", "a3"],
+    description:
+      "Complejo residencial moderno con piscina en azotea, gimnasio equipado y terraza panorámica. Excelente conexión con transporte público.",
+    images: [prop1, prop3, prop6],
   },
   {
     id: "b2",
@@ -67,6 +70,8 @@ export const seedBuildings: Building[] = [
     city: "Barcelona",
     ownerId: "u2",
     amenityIds: ["a4"],
+    description: "Residencial familiar con amplias zonas verdes y salón de eventos.",
+    images: [prop5, prop2],
   },
   {
     id: "b3",
@@ -75,6 +80,8 @@ export const seedBuildings: Building[] = [
     city: "Valencia",
     ownerId: "u2",
     amenityIds: [],
+    description: "Edificio moderno a pocos minutos de la playa.",
+    images: [prop6, prop4],
   },
   {
     id: "b4",
@@ -83,6 +90,8 @@ export const seedBuildings: Building[] = [
     city: "Madrid",
     ownerId: "u2",
     amenityIds: [],
+    description: "Estudios urbanos en pleno centro, ideales para profesionales.",
+    images: [prop2, prop1],
   },
   {
     id: "b5",
@@ -91,6 +100,8 @@ export const seedBuildings: Building[] = [
     city: "Sevilla",
     ownerId: "u2",
     amenityIds: [],
+    description: "Apartamentos renovados con acabados de diseño.",
+    images: [prop4, prop3],
   },
 ];
 
