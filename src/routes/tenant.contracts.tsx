@@ -9,7 +9,8 @@ export const Route = createFileRoute("/tenant/contracts")({
 
 function Page() {
   const user = useAppStore((s) => s.currentUser);
-  const contracts = useAppStore((s) => s.contracts.filter((c) => c.tenantId === user?.id));
+  const contracts = useAppStore((s) => s.contracts);
+  const tenantContracts = contracts.filter((c) => c.tenantId === user?.id);
   const properties = useAppStore((s) => s.properties);
 
   return (
@@ -20,7 +21,7 @@ function Page() {
       </div>
 
       <div className="space-y-3">
-        {contracts.map((c) => {
+        {tenantContracts.map((c) => {
           const p = properties.find((x) => x.id === c.propertyId);
           return (
             <div key={c.id} className="rounded-2xl border border-border bg-card p-5 shadow-card">

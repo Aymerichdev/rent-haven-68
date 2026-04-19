@@ -9,10 +9,13 @@ export const Route = createFileRoute("/tenant/")({
 
 function Page() {
   const user = useAppStore((s) => s.currentUser);
-  const contracts = useAppStore((s) => s.contracts.filter((c) => c.tenantId === user?.id));
-  const payments = useAppStore((s) => s.payments.filter((p) => p.tenantId === user?.id));
+  const contracts = useAppStore((s) => s.contracts);
+  const payments = useAppStore((s) => s.payments);
   const properties = useAppStore((s) => s.properties);
-  const pending = payments.filter((p) => p.status === "pending" || p.status === "overdue");
+
+  const tenantContracts = contracts.filter((c) => c.tenantId === user?.id);
+  const tenantPayments = payments.filter((p) => p.tenantId === user?.id);
+  const pending = tenantPayments.filter((p) => p.status === "pending" || p.status === "overdue");
 
   return (
     <div className="space-y-6">
@@ -22,13 +25,13 @@ function Page() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card icon={<Home />} label="Mis alquileres" value={contracts.length} to="/tenant/rentals" />
-        <Card icon={<FileText />} label="Contratos activos" value={contracts.filter((c) => c.status === "active").length} to="/tenant/contracts" />
+        <Card icon={<Home />} label="Mis alquileres" value={tenantContracts.length} to="/tenant/rentals" />
+        <Card icon={<FileText />} label="Contratos activos" value={tenantContracts.filter((c) => c.status === "active").length} to="/tenant/contracts" />
         <Card icon={<CreditCard />} label="Pagos pendientes" value={pending.length} to="/tenant/payments" accent />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {contracts.map((c) => {
+        {tenantContracts.map((c) => {
           const p = properties.find((x) => x.id === c.propertyId);
           if (!p) return null;
           return (

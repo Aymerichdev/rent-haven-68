@@ -14,16 +14,15 @@ export const Route = createFileRoute("/properties/$propertyId")({
 function Page() {
   const { propertyId } = Route.useParams();
   const property = useAppStore((s) => s.properties.find((p) => p.id === propertyId));
-  const building = useAppStore((s) =>
-    property?.buildingId ? s.buildings.find((b) => b.id === property.buildingId) : undefined,
-  );
-  const amenities = useAppStore((s) =>
-    building ? s.amenities.filter((a) => a.buildingId === building.id) : [],
-  );
+  const buildings = useAppStore((s) => s.buildings);
+  const allAmenities = useAppStore((s) => s.amenities);
   const user = useAppStore((s) => s.currentUser);
   const createReq = useAppStore((s) => s.createRentalRequest);
   const nav = useNavigate();
   const [msg, setMsg] = useState("");
+
+  const building = buildings.find((b) => b.id === property?.buildingId);
+  const amenities = allAmenities.filter((a) => a.buildingId === building?.id);
 
   if (!property) {
     return (

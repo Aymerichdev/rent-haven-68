@@ -9,7 +9,8 @@ export const Route = createFileRoute("/tenant/rentals")({
 
 function Page() {
   const user = useAppStore((s) => s.currentUser);
-  const contracts = useAppStore((s) => s.contracts.filter((c) => c.tenantId === user?.id));
+  const contracts = useAppStore((s) => s.contracts);
+  const tenantContracts = contracts.filter((c) => c.tenantId === user?.id);
   const properties = useAppStore((s) => s.properties);
 
   return (
@@ -19,7 +20,7 @@ function Page() {
         <p className="mt-1 text-sm text-muted-foreground">Propiedades activas.</p>
       </div>
 
-      {contracts.length === 0 && (
+      {tenantContracts.length === 0 && (
         <div className="rounded-2xl border border-dashed border-border p-12 text-center">
           <p className="text-muted-foreground">Aún no tienes alquileres activos.</p>
           <Button asChild className="mt-4 bg-gradient-warm">
@@ -29,7 +30,7 @@ function Page() {
       )}
 
       <div className="grid gap-6 md:grid-cols-2">
-        {contracts.map((c) => {
+        {tenantContracts.map((c) => {
           const p = properties.find((x) => x.id === c.propertyId);
           if (!p) return null;
           return (

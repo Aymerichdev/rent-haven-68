@@ -31,8 +31,11 @@ export const Route = createFileRoute("/owner/properties")({
 
 function Page() {
   const user = useAppStore((s) => s.currentUser);
-  const properties = useAppStore((s) => s.properties.filter((p) => p.ownerId === user?.id));
-  const buildings = useAppStore((s) => s.buildings.filter((b) => b.ownerId === user?.id));
+  const properties = useAppStore((s) => s.properties);
+  const buildings = useAppStore((s) => s.buildings);
+
+  const ownerProperties = properties.filter((p) => p.ownerId === user?.id);
+  const ownerBuildings = buildings.filter((b) => b.ownerId === user?.id);
   const add = useAppStore((s) => s.addProperty);
   const upd = useAppStore((s) => s.updateProperty);
   const del = useAppStore((s) => s.deleteProperty);
@@ -87,7 +90,7 @@ function Page() {
       <div className="flex items-end justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold sm:text-3xl">Mis propiedades</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{properties.length} en cartera.</p>
+          <p className="mt-1 text-sm text-muted-foreground">{ownerProperties.length} en cartera.</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -138,7 +141,7 @@ function Page() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Sin edificio</SelectItem>
-                    {buildings.map((b) => (
+                    {ownerBuildings.map((b) => (
                       <SelectItem key={b.id} value={b.id}>
                         {b.name}
                       </SelectItem>
@@ -203,7 +206,7 @@ function Page() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {properties.map((p) => (
+        {ownerProperties.map((p) => (
           <div key={p.id} className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
             <img src={p.images[0]} alt={p.title} loading="lazy" className="aspect-[4/3] w-full object-cover" />
             <div className="p-4">

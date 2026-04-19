@@ -17,7 +17,8 @@ const monthName = (m: string) => {
 
 function Page() {
   const user = useAppStore((s) => s.currentUser);
-  const payments = useAppStore((s) => s.payments.filter((p) => p.tenantId === user?.id));
+  const payments = useAppStore((s) => s.payments);
+  const tenantPayments = payments.filter((p) => p.tenantId === user?.id);
   const pay = useAppStore((s) => s.payPayment);
   const validate = useAppStore((s) => s.validatePayment);
 
@@ -54,7 +55,7 @@ function Page() {
       </div>
 
       <div className="space-y-3">
-        {payments
+        {tenantPayments
           .slice()
           .sort((a, b) => b.month.localeCompare(a.month))
           .map((p) => (
