@@ -105,15 +105,13 @@ function Page() {
       // crear edificio con id temporal pendiente — usamos addBuilding y luego buscamos por nombre/ts
       // Workaround: generamos el id derivando del último insert (store usa uid interno).
       // Para simplificar, creamos building primero y dejamos amenidades inline a "agregar luego".
-      add({ ...form, images: finalImages });
-      // Las amenidades inline se agregarán cuando sepamos el id; mostramos hint:
-      if (amenityDrafts.length > 0) {
-        toast.message(
-          `Edificio creado. Añade ${amenityDrafts.length} amenidad(es) desde la card del edificio.`,
-        );
-      } else {
-        toast.success("Edificio creado");
-      }
+      const newId = add({ ...form, images: finalImages });
+      amenityDrafts.forEach((a) => addAmenity({ ...a, buildingId: newId }));
+      toast.success(
+        amenityDrafts.length > 0
+          ? `Edificio creado con ${amenityDrafts.length} amenidad(es)`
+          : "Edificio creado",
+      );
     }
     setOpen(false);
   };
