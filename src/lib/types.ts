@@ -17,6 +17,8 @@ export interface Building {
   city: string;
   ownerId: string;
   amenityIds: string[];
+  description?: string;
+  images: string[];
 }
 
 export interface Amenity {
@@ -37,14 +39,15 @@ export interface Meter {
 
 /**
  * Unit es la entidad alquilable y publicable (la "propiedad" operativa).
- * Pertenece a un Building (obligatorio) y hereda ownerId/city/address de él
- * salvo que se sobrescriba con `addressOverride`.
+ * Puede pertenecer a un Building (heredando ownerId/city/address) o ser
+ * independiente: en ese caso `addressOverride` y `cityOverride` son obligatorios.
  */
 export interface Unit {
   id: string;
-  buildingId: string;
+  /** Opcional: si no hay, la unidad es independiente. */
+  buildingId?: string;
   ownerId: string;
-  number: string; // único por building
+  number: string; // único por building (si tiene)
   title: string;
   description: string;
   type: "apartment" | "house" | "studio";
@@ -56,8 +59,10 @@ export interface Unit {
   status: "available" | "rented" | "maintenance";
   tenantId?: string;
   featured?: boolean;
-  /** Si está presente, sobrescribe la dirección heredada del building. */
+  /** Sobrescribe (u obliga, si no hay building) la dirección. */
   addressOverride?: string;
+  /** Sobrescribe (u obliga, si no hay building) la ciudad. */
+  cityOverride?: string;
 }
 
 export interface RentalRequest {
