@@ -29,6 +29,7 @@ import { Route as TenantContractsRouteImport } from './routes/tenant.contracts'
 import { Route as TenantAmenitiesRouteImport } from './routes/tenant.amenities'
 import { Route as OwnerUnitsRouteImport } from './routes/owner.units'
 import { Route as OwnerRequestsRouteImport } from './routes/owner.requests'
+import { Route as OwnerPaymentsRouteImport } from './routes/owner.payments'
 import { Route as OwnerMetersRouteImport } from './routes/owner.meters'
 import { Route as OwnerBuildingsRouteImport } from './routes/owner.buildings'
 import { Route as OwnerAmenitiesRouteImport } from './routes/owner.amenities'
@@ -135,6 +136,11 @@ const OwnerRequestsRoute = OwnerRequestsRouteImport.update({
   path: '/requests',
   getParentRoute: () => OwnerRoute,
 } as any)
+const OwnerPaymentsRoute = OwnerPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => OwnerRoute,
+} as any)
 const OwnerMetersRoute = OwnerMetersRouteImport.update({
   id: '/meters',
   path: '/meters',
@@ -175,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/owner/amenities': typeof OwnerAmenitiesRoute
   '/owner/buildings': typeof OwnerBuildingsRouteWithChildren
   '/owner/meters': typeof OwnerMetersRoute
+  '/owner/payments': typeof OwnerPaymentsRoute
   '/owner/requests': typeof OwnerRequestsRoute
   '/owner/units': typeof OwnerUnitsRoute
   '/tenant/amenities': typeof TenantAmenitiesRoute
@@ -199,6 +206,7 @@ export interface FileRoutesByTo {
   '/owner/amenities': typeof OwnerAmenitiesRoute
   '/owner/buildings': typeof OwnerBuildingsRouteWithChildren
   '/owner/meters': typeof OwnerMetersRoute
+  '/owner/payments': typeof OwnerPaymentsRoute
   '/owner/requests': typeof OwnerRequestsRoute
   '/owner/units': typeof OwnerUnitsRoute
   '/tenant/amenities': typeof TenantAmenitiesRoute
@@ -227,6 +235,7 @@ export interface FileRoutesById {
   '/owner/amenities': typeof OwnerAmenitiesRoute
   '/owner/buildings': typeof OwnerBuildingsRouteWithChildren
   '/owner/meters': typeof OwnerMetersRoute
+  '/owner/payments': typeof OwnerPaymentsRoute
   '/owner/requests': typeof OwnerRequestsRoute
   '/owner/units': typeof OwnerUnitsRoute
   '/tenant/amenities': typeof TenantAmenitiesRoute
@@ -256,6 +265,7 @@ export interface FileRouteTypes {
     | '/owner/amenities'
     | '/owner/buildings'
     | '/owner/meters'
+    | '/owner/payments'
     | '/owner/requests'
     | '/owner/units'
     | '/tenant/amenities'
@@ -280,6 +290,7 @@ export interface FileRouteTypes {
     | '/owner/amenities'
     | '/owner/buildings'
     | '/owner/meters'
+    | '/owner/payments'
     | '/owner/requests'
     | '/owner/units'
     | '/tenant/amenities'
@@ -307,6 +318,7 @@ export interface FileRouteTypes {
     | '/owner/amenities'
     | '/owner/buildings'
     | '/owner/meters'
+    | '/owner/payments'
     | '/owner/requests'
     | '/owner/units'
     | '/tenant/amenities'
@@ -477,6 +489,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OwnerRequestsRouteImport
       parentRoute: typeof OwnerRoute
     }
+    '/owner/payments': {
+      id: '/owner/payments'
+      path: '/payments'
+      fullPath: '/owner/payments'
+      preLoaderRoute: typeof OwnerPaymentsRouteImport
+      parentRoute: typeof OwnerRoute
+    }
     '/owner/meters': {
       id: '/owner/meters'
       path: '/meters'
@@ -543,6 +562,7 @@ interface OwnerRouteChildren {
   OwnerAmenitiesRoute: typeof OwnerAmenitiesRoute
   OwnerBuildingsRoute: typeof OwnerBuildingsRouteWithChildren
   OwnerMetersRoute: typeof OwnerMetersRoute
+  OwnerPaymentsRoute: typeof OwnerPaymentsRoute
   OwnerRequestsRoute: typeof OwnerRequestsRoute
   OwnerUnitsRoute: typeof OwnerUnitsRoute
   OwnerIndexRoute: typeof OwnerIndexRoute
@@ -552,6 +572,7 @@ const OwnerRouteChildren: OwnerRouteChildren = {
   OwnerAmenitiesRoute: OwnerAmenitiesRoute,
   OwnerBuildingsRoute: OwnerBuildingsRouteWithChildren,
   OwnerMetersRoute: OwnerMetersRoute,
+  OwnerPaymentsRoute: OwnerPaymentsRoute,
   OwnerRequestsRoute: OwnerRequestsRoute,
   OwnerUnitsRoute: OwnerUnitsRoute,
   OwnerIndexRoute: OwnerIndexRoute,
