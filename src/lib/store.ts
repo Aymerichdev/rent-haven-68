@@ -85,8 +85,15 @@ interface AppState {
   setBookingStatus: (id: string, status: AmenityBooking["status"]) => void;
 
   // payments
-  payPayment: (id: string) => void;
-  validatePayment: (id: string) => void;
+  /** El inquilino sube un comprobante; pasa a "validating". */
+  submitPaymentReceipt: (
+    id: string,
+    receipt: { dataUrl: string; name: string; type: string },
+  ) => void;
+  /** El owner aprueba el comprobante. */
+  approvePayment: (id: string, ownerNote?: string) => void;
+  /** El owner rechaza el comprobante (mensaje obligatorio). */
+  rejectPayment: (id: string, ownerNote: string) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -232,28 +239,59 @@ export const useAppStore = create<AppState>()(
       setBookingStatus: (id, status) =>
         set((s) => ({ bookings: s.bookings.map((b) => (b.id === id ? { ...b, status } : b)) })),
 
-      payPayment: (id) =>
-        set((s) => ({
-          payments: s.payments.map((p) =>
-            p.id === id ? { ...p, status: "validating" as const } : p,
-          ),
-        })),
-      validatePayment: (id) =>
+      submitPaymentReceipt: (id, receipt) =>
         set((s) => ({
           payments: s.payments.map((p) =>
             p.id === id
-              ? { ...p, status: "paid" as const, paidAt: new Date().toISOString().slice(0, 10) }
+              ? {
+                  ...p,
+                  status: "validating" as const,
+                  receiptDataUrl: receipt.dataUrl,
+                  receiptName: receipt.name,
+                  receiptType: receipt.type,
+                  receiptUploadedAt: new Date().toISOString().slice(0, 10),
+                  // limpiar feedback previo si vuelve a subir tras rechazo
+                  ownerNote: undefined,
+                  reviewedAt: undefined,
+                }
+              : p,
+          ),
+        })),
+      approvePayment: (id, ownerNote) =>
+        set((s) => ({
+          payments: s.payments.map((p) =>
+            p.id === id
+              ? {
+                  ...p,
+                  status: "paid" as const,
+                  paidAt: new Date().toISOString().slice(0, 10),
+                  reviewedAt: new Date().toISOString().slice(0, 10),
+                  ownerNote: ownerNote?.trim() ? ownerNote.trim() : p.ownerNote,
+                }
+              : p,
+          ),
+        })),
+      rejectPayment: (id, ownerNote) =>
+        set((s) => ({
+          payments: s.payments.map((p) =>
+            p.id === id
+              ? {
+                  ...p,
+                  status: "rejected" as const,
+                  reviewedAt: new Date().toISOString().slice(0, 10),
+                  ownerNote: ownerNote.trim(),
+                }
               : p,
           ),
         })),
     }),
     {
       name: "estate-app",
-      version: 4,
-      // v3→v4: RentalRequest ahora exige `phone` y permite ownerResponse/updatedAt.
-      // Reset duro para evitar estados inconsistentes.
+      version: 5,
+      // v4→v5: Payment gana receipt + ownerNote y nuevo status "rejected".
+      // Reset duro para mantener consistencia del prototipo.
       migrate: (persisted: unknown, version) => {
-        if (version < 4) {
+        if (version < 5) {
           const prev = (persisted ?? {}) as { currentUser?: User | null };
           return { currentUser: prev.currentUser ?? null };
         }

@@ -110,6 +110,22 @@ export interface Payment {
   month: string; // YYYY-MM
   amount: number;
   utilities: number;
-  status: "pending" | "paid" | "overdue" | "validating";
+  /**
+   * pending: aún no se subió comprobante.
+   * validating: el inquilino subió comprobante, pendiente de revisión del owner.
+   * paid: el owner aprobó el comprobante.
+   * rejected: el owner rechazó el comprobante; el inquilino puede volver a subir.
+   * overdue: vencido sin pago.
+   */
+  status: "pending" | "paid" | "overdue" | "validating" | "rejected";
   paidAt?: string;
+  /** Comprobante subido por el inquilino (base64 data URL). Solo el último. */
+  receiptDataUrl?: string;
+  receiptName?: string;
+  receiptType?: string;
+  receiptUploadedAt?: string;
+  /** Mensaje del owner al aprobar/rechazar. */
+  ownerNote?: string;
+  /** Fecha de la última revisión del owner. */
+  reviewedAt?: string;
 }
