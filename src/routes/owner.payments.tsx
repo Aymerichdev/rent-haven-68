@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CreditCard, Eye, Check, X, FileText, AlertTriangle } from "lucide-react";
+import { Eye, Check, X, FileText, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import type { Payment } from "@/lib/types";
 
@@ -313,4 +313,3 @@ function StatusBadge({ status }: { status: Payment["status"] }) {
   );
 }
 
-void CreditCard;
