@@ -4,7 +4,10 @@ import { useAppStore, getUnitAddress, getUnitCity } from "@/lib/store";
 import { PublicNavbar, Footer } from "@/components/site/PublicNavbar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Bed, Bath, Square, MapPin, Building2, Heart, Share2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Bed, Bath, Square, MapPin, Building2, Heart, Share2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/units/$unitId")({
@@ -20,6 +23,7 @@ function Page() {
   const createReq = useAppStore((s) => s.createRentalRequest);
   const nav = useNavigate();
   const [msg, setMsg] = useState("");
+  const [phone, setPhone] = useState("");
 
   const unit = units.find((u) => u.id === unitId);
   const building = buildings.find((b) => b.id === unit?.buildingId);
@@ -49,14 +53,21 @@ function Page() {
       toast.error("Solo inquilinos pueden solicitar alquileres");
       return;
     }
+    const cleanPhone = phone.trim();
+    if (cleanPhone.length < 6) {
+      toast.error("Ingresa un número de teléfono válido");
+      return;
+    }
     createReq({
       unitId: unit.id,
       tenantId: user.id,
       ownerId: unit.ownerId,
-      message: msg || "Estoy interesado/a en esta unidad.",
+      phone: cleanPhone,
+      message: msg.trim() || "Estoy interesado/a en esta unidad.",
     });
     setMsg("");
-    toast.success("Solicitud enviada al propietario");
+    setPhone("");
+    toast.success("Solicitud enviada. El propietario se pondrá en contacto.");
   };
 
   const city = getUnitCity(unit, building);
@@ -72,6 +83,15 @@ function Page() {
             <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
               <MapPin className="h-4 w-4" /> {address} · {city}
             </p>
+            {building && (
+              <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
+                <Building2 className="h-3.5 w-3.5" />
+                Forma parte del edificio <span className="font-semibold">{building.name}</span>
+                <Badge variant="outline" className="border-primary/30 text-[10px] uppercase tracking-wider">
+                  Rental
+                </Badge>
+              </div>
+            )}
           </div>
           <div className="hidden gap-2 sm:flex">
             <Button variant="outline" size="icon">
@@ -114,21 +134,72 @@ function Page() {
             <h2 className="mt-8 font-display text-xl font-bold">Sobre esta unidad</h2>
             <p className="mt-3 leading-relaxed text-muted-foreground">{unit.description}</p>
 
-            {amenities.length > 0 && (
-              <>
-                <h2 className="mt-10 font-display text-xl font-bold">Amenidades del edificio</h2>
-                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {amenities.map((a) => (
-                    <div
-                      key={a.id}
-                      className="flex items-center gap-3 rounded-xl border border-border bg-card p-3"
-                    >
-                      <span className="text-xl">{a.icon}</span>
-                      <span className="text-sm font-medium">{a.name}</span>
-                    </div>
-                  ))}
+            {/* Resumen del edificio (reutilizando el patrón de la vista owner) */}
+            {building && (
+              <section className="mt-10 rounded-2xl border border-border bg-card p-6 shadow-card">
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5 text-primary" />
+                  <h2 className="font-display text-xl font-bold">Edificio {building.name}</h2>
+                  <Badge variant="outline" className="ml-1 border-primary/30 text-[10px] uppercase">
+                    Rental
+                  </Badge>
                 </div>
-              </>
+                <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                  <MapPin className="h-3.5 w-3.5" /> {building.address} · {building.city}
+                </p>
+
+                {building.images.length > 0 && (
+                  <div className="mt-4 grid gap-2 overflow-hidden rounded-xl sm:grid-cols-3">
+                    {building.images.slice(0, 3).map((img, i) => (
+                      <img
+                        key={i}
+                        src={img}
+                        alt={`${building.name} ${i + 1}`}
+                        loading="lazy"
+                        className="aspect-[4/3] h-full w-full object-cover"
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {building.description && (
+                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                    {building.description}
+                  </p>
+                )}
+
+                {amenities.length > 0 && (
+                  <>
+                    <div className="mt-5 flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      <h3 className="font-display text-sm font-bold uppercase tracking-wider">
+                        Amenidades del edificio
+                      </h3>
+                      <Badge variant="outline" className="ml-1">
+                        {amenities.length}
+                      </Badge>
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      {amenities.map((a) => (
+                        <div
+                          key={a.id}
+                          className="flex items-center gap-3 rounded-xl border border-border bg-background p-3"
+                        >
+                          <span className="text-xl">{a.icon}</span>
+                          <div className="min-w-0">
+                            <div className="truncate text-sm font-medium">{a.name}</div>
+                            {a.bookable && (
+                              <div className="text-[10px] uppercase tracking-wider text-primary">
+                                Reservable
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </section>
             )}
           </div>
 
@@ -140,17 +211,44 @@ function Page() {
                 </span>
                 <span className="text-sm text-muted-foreground">/mes</span>
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">Incluye gestión digital de pagos</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                El propietario se pondrá en contacto contigo tras tu solicitud.
+              </p>
 
-              <Textarea
-                value={msg}
-                onChange={(e) => setMsg(e.target.value)}
-                placeholder="Hola, me gustaría más información..."
-                className="mt-5 min-h-24"
-              />
+              <div className="mt-5 space-y-3">
+                <div>
+                  <Label htmlFor="req-phone" className="text-xs">
+                    Teléfono de contacto *
+                  </Label>
+                  <Input
+                    id="req-phone"
+                    type="tel"
+                    inputMode="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+34 612 345 678"
+                    maxLength={30}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="req-msg" className="text-xs">
+                    Mensaje
+                  </Label>
+                  <Textarea
+                    id="req-msg"
+                    value={msg}
+                    onChange={(e) => setMsg(e.target.value)}
+                    placeholder="Hola, me gustaría más información..."
+                    maxLength={500}
+                    className="mt-1 min-h-24"
+                  />
+                </div>
+              </div>
+
               <Button
                 onClick={submit}
-                className="mt-3 w-full bg-gradient-warm"
+                className="mt-4 w-full bg-gradient-warm"
                 disabled={unit.status !== "available"}
               >
                 {unit.status === "available" ? "Solicitar alquiler" : "No disponible"}
