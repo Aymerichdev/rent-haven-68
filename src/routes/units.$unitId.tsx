@@ -226,7 +226,7 @@ function Page() {
                     inputMode="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+34 612 345 678"
+                    placeholder="+506 612 345 678"
                     maxLength={30}
                     className="mt-1"
                   />
