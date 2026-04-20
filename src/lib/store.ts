@@ -73,8 +73,14 @@ interface AppState {
   deleteMeter: (id: string) => void;
 
   // requests / bookings
-  createRentalRequest: (r: Omit<RentalRequest, "id" | "createdAt" | "status">) => void;
-  setRequestStatus: (id: string, status: RentalRequest["status"]) => void;
+  createRentalRequest: (
+    r: Omit<RentalRequest, "id" | "createdAt" | "status" | "ownerResponse" | "updatedAt">,
+  ) => void;
+  setRequestStatus: (
+    id: string,
+    status: RentalRequest["status"],
+    ownerResponse?: string,
+  ) => void;
   createBooking: (b: Omit<AmenityBooking, "id" | "status">) => void;
   setBookingStatus: (id: string, status: AmenityBooking["status"]) => void;
 
@@ -207,8 +213,19 @@ export const useAppStore = create<AppState>()(
             },
           ],
         })),
-      setRequestStatus: (id, status) =>
-        set((s) => ({ requests: s.requests.map((r) => (r.id === id ? { ...r, status } : r)) })),
+      setRequestStatus: (id, status, ownerResponse) =>
+        set((s) => ({
+          requests: s.requests.map((r) =>
+            r.id === id
+              ? {
+                  ...r,
+                  status,
+                  ownerResponse: ownerResponse ?? r.ownerResponse,
+                  updatedAt: new Date().toISOString().slice(0, 10),
+                }
+              : r,
+          ),
+        })),
 
       createBooking: (b) =>
         set((s) => ({ bookings: [...s.bookings, { ...b, id: uid(), status: "pending" }] })),
@@ -232,11 +249,11 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: "estate-app",
-      version: 3,
-      // v2→v3: Building ahora tiene images[]; Unit.buildingId es opcional y
-      // existe cityOverride. Reset duro para evitar estados inconsistentes.
+      version: 4,
+      // v3→v4: RentalRequest ahora exige `phone` y permite ownerResponse/updatedAt.
+      // Reset duro para evitar estados inconsistentes.
       migrate: (persisted: unknown, version) => {
-        if (version < 3) {
+        if (version < 4) {
           const prev = (persisted ?? {}) as { currentUser?: User | null };
           return { currentUser: prev.currentUser ?? null };
         }

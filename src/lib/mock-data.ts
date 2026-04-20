@@ -221,6 +221,7 @@ export const seedRequests: RentalRequest[] = [
     unitId: "un2",
     tenantId: "u4",
     ownerId: "u2",
+    phone: "+34 612 345 678",
     message: "Hola, me interesa mucho el apartamento. ¿Podemos visitarlo?",
     status: "pending",
     createdAt: "2025-04-10",
