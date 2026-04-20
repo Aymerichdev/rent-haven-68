@@ -70,9 +70,15 @@ export interface RentalRequest {
   unitId: string;
   tenantId: string;
   ownerId: string;
+  /** Teléfono de contacto del inquilino. */
+  phone: string;
   message: string;
   status: "pending" | "approved" | "rejected";
+  /** Mensaje del propietario al aprobar/rechazar. */
+  ownerResponse?: string;
   createdAt: string;
+  /** Fecha de la última actualización (respuesta del owner). */
+  updatedAt?: string;
 }
 
 export interface AmenityBooking {
