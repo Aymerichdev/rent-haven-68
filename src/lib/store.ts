@@ -82,7 +82,11 @@ interface AppState {
     ownerResponse?: string,
   ) => void;
   createBooking: (b: Omit<AmenityBooking, "id" | "status">) => void;
-  setBookingStatus: (id: string, status: AmenityBooking["status"]) => void;
+  setBookingStatus: (
+    id: string,
+    status: AmenityBooking["status"],
+    ownerNote?: string,
+  ) => void;
 
   // payments
   /** El inquilino sube un comprobante; pasa a "validating". */
@@ -236,8 +240,14 @@ export const useAppStore = create<AppState>()(
 
       createBooking: (b) =>
         set((s) => ({ bookings: [...s.bookings, { ...b, id: uid(), status: "pending" }] })),
-      setBookingStatus: (id, status) =>
-        set((s) => ({ bookings: s.bookings.map((b) => (b.id === id ? { ...b, status } : b)) })),
+      setBookingStatus: (id, status, ownerNote) =>
+        set((s) => ({
+          bookings: s.bookings.map((b) =>
+            b.id === id
+              ? { ...b, status, ownerNote: ownerNote?.trim() ? ownerNote.trim() : b.ownerNote }
+              : b,
+          ),
+        })),
 
       submitPaymentReceipt: (id, receipt) =>
         set((s) => ({
@@ -287,11 +297,10 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: "estate-app",
-      version: 5,
-      // v4→v5: Payment gana receipt + ownerNote y nuevo status "rejected".
-      // Reset duro para mantener consistencia del prototipo.
+      version: 6,
+      // v5→v6: Amenity gana schedule/photo/capacity y AmenityBooking pasa a startTime/endTime.
       migrate: (persisted: unknown, version) => {
-        if (version < 5) {
+        if (version < 6) {
           const prev = (persisted ?? {}) as { currentUser?: User | null };
           return { currentUser: prev.currentUser ?? null };
         }

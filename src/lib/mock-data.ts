@@ -106,10 +106,40 @@ export const seedBuildings: Building[] = [
 ];
 
 export const seedAmenities: Amenity[] = [
-  { id: "a1", name: "Piscina", icon: "🏊", buildingId: "b1", bookable: true },
-  { id: "a2", name: "Gimnasio", icon: "🏋️", buildingId: "b1", bookable: true },
-  { id: "a3", name: "Terraza", icon: "🌇", buildingId: "b1", bookable: true },
-  { id: "a4", name: "Salón eventos", icon: "🎉", buildingId: "b2", bookable: true },
+  {
+    id: "a1",
+    name: "Piscina",
+    icon: "🏊",
+    buildingId: "b1",
+    bookable: true,
+    description: "Piscina climatizada en azotea con tumbonas y vista panorámica.",
+    capacity: 8,
+    photoUrl: undefined,
+    schedule: {
+      days: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+      openTime: "08:00",
+      closeTime: "20:00",
+      slotDurationMinutes: 60,
+    },
+  },
+  {
+    id: "a2",
+    name: "Gimnasio",
+    icon: "🏋️",
+    buildingId: "b1",
+    bookable: true,
+    description: "Gimnasio equipado con cardio, peso libre y zona funcional.",
+    capacity: 6,
+    photoUrl: undefined,
+    schedule: {
+      days: ["mon", "tue", "wed", "thu", "fri", "sat"],
+      openTime: "06:00",
+      closeTime: "22:00",
+      slotDurationMinutes: 60,
+    },
+  },
+  { id: "a3", name: "Terraza", icon: "🌇", buildingId: "b1", bookable: true, photoUrl: undefined },
+  { id: "a4", name: "Salón eventos", icon: "🎉", buildingId: "b2", bookable: true, photoUrl: undefined },
 ];
 
 export const seedUnits: Unit[] = [
@@ -235,7 +265,8 @@ export const seedBookings: AmenityBooking[] = [
     tenantId: "u3",
     ownerId: "u2",
     date: "2025-04-25",
-    time: "18:00",
+    startTime: "18:00",
+    endTime: "19:00",
     status: "pending",
   },
 ];
