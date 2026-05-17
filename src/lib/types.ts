@@ -21,12 +21,25 @@ export interface Building {
   images: string[];
 }
 
+export type WeekDay = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+
+export interface AmenitySchedule {
+  days: WeekDay[];
+  openTime: string; // "HH:MM"
+  closeTime: string; // "HH:MM"
+  slotDurationMinutes: number;
+}
+
 export interface Amenity {
   id: string;
   name: string;
   icon: string;
   buildingId: string;
   bookable: boolean;
+  description?: string;
+  photoUrl?: string;
+  capacity?: number;
+  schedule?: AmenitySchedule;
 }
 
 export interface Meter {
