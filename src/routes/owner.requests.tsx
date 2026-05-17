@@ -297,6 +297,52 @@ function Page() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!pendingBooking} onOpenChange={(o) => !o && setPendingBooking(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {pendingBooking?.action === "approved" ? "Aprobar reserva" : "Rechazar reserva"}
+            </DialogTitle>
+            <DialogDescription>
+              Puedes incluir una nota para el inquilino (opcional).
+            </DialogDescription>
+          </DialogHeader>
+          <div>
+            <Label htmlFor="bnote" className="text-xs">
+              Nota
+            </Label>
+            <Textarea
+              id="bnote"
+              value={bookingResponse}
+              onChange={(e) => setBookingResponse(e.target.value)}
+              placeholder={
+                pendingBooking?.action === "approved"
+                  ? "Confirmada. Recuerda llegar 5 min antes."
+                  : "Lo sentimos, ese horario no está disponible."
+              }
+              maxLength={400}
+              className="mt-1 min-h-24"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPendingBooking(null)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={confirmBooking}
+              className={
+                pendingBooking?.action === "approved"
+                  ? "bg-success text-success-foreground hover:bg-success/90"
+                  : ""
+              }
+              variant={pendingBooking?.action === "rejected" ? "destructive" : "default"}
+            >
+              {pendingBooking?.action === "approved" ? "Aprobar" : "Rechazar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
