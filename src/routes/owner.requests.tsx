@@ -155,44 +155,72 @@ function Page() {
             {ownerBookings.map((b) => {
               const a = amenities.find((x) => x.id === b.amenityId);
               const t = users.find((x) => x.id === b.tenantId);
+              const range =
+                b.startTime && b.endTime && b.startTime !== b.endTime
+                  ? `${b.startTime}–${b.endTime}`
+                  : (b.startTime ?? b.time ?? "");
               return (
                 <div
                   key={b.id}
-                  className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-card sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-card sm:flex-row sm:items-start sm:justify-between"
                 >
-                  <div>
-                    <div className="font-medium">
-                      {a?.icon} {a?.name}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {t?.name} · {b.date} {b.time}
+                  <div className="flex flex-1 items-start gap-3">
+                    {a?.photoUrl ? (
+                      <img
+                        src={a.photoUrl}
+                        alt=""
+                        className="h-16 w-20 shrink-0 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-lg bg-secondary text-2xl">
+                        {a?.icon}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium">
+                        {a?.icon} {a?.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {t?.name} · {b.date} · {range}
+                      </div>
+                      {b.notes && (
+                        <p className="mt-1 rounded-md bg-secondary/50 p-2 text-xs">{b.notes}</p>
+                      )}
+                      {b.ownerNote && (
+                        <p className="mt-1 inline-flex items-start gap-1 rounded-md border border-primary/20 bg-primary/5 p-1.5 text-xs">
+                          <MessageSquare className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
+                          <span>
+                            <span className="font-semibold">Tu nota:</span> {b.ownerNote}
+                          </span>
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex shrink-0 items-center gap-2 sm:flex-col sm:items-end">
                     <StatusBadge status={b.status} />
                     {b.status === "pending" && (
-                      <>
+                      <div className="flex gap-2">
                         <Button
                           size="sm"
                           className="bg-success text-success-foreground hover:bg-success/90"
                           onClick={() => {
-                            setBook(b.id, "approved");
-                            toast.success("Aprobada");
+                            setBookingResponse("");
+                            setPendingBooking({ id: b.id, action: "approved" });
                           }}
                         >
-                          <Check className="mr-1 h-3.5 w-3.5" />
+                          <Check className="mr-1 h-3.5 w-3.5" /> Aprobar
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => {
-                            setBook(b.id, "rejected");
-                            toast("Rechazada");
+                            setBookingResponse("");
+                            setPendingBooking({ id: b.id, action: "rejected" });
                           }}
                         >
-                          <X className="mr-1 h-3.5 w-3.5" />
+                          <X className="mr-1 h-3.5 w-3.5" /> Rechazar
                         </Button>
-                      </>
+                      </div>
                     )}
                   </div>
                 </div>
