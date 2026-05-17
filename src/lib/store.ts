@@ -297,11 +297,10 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: "estate-app",
-      version: 5,
-      // v4→v5: Payment gana receipt + ownerNote y nuevo status "rejected".
-      // Reset duro para mantener consistencia del prototipo.
+      version: 6,
+      // v5→v6: Amenity gana schedule/photo/capacity y AmenityBooking pasa a startTime/endTime.
       migrate: (persisted: unknown, version) => {
-        if (version < 5) {
+        if (version < 6) {
           const prev = (persisted ?? {}) as { currentUser?: User | null };
           return { currentUser: prev.currentUser ?? null };
         }
