@@ -22,6 +22,7 @@ export const Route = createFileRoute("/owner/requests")({
 });
 
 type Pending = { req: RentalRequest; action: "approved" | "rejected" } | null;
+type PendingBooking = { id: string; action: "approved" | "rejected" } | null;
 
 function Page() {
   const user = useAppStore((s) => s.currentUser);
