@@ -82,7 +82,11 @@ interface AppState {
     ownerResponse?: string,
   ) => void;
   createBooking: (b: Omit<AmenityBooking, "id" | "status">) => void;
-  setBookingStatus: (id: string, status: AmenityBooking["status"]) => void;
+  setBookingStatus: (
+    id: string,
+    status: AmenityBooking["status"],
+    ownerNote?: string,
+  ) => void;
 
   // payments
   /** El inquilino sube un comprobante; pasa a "validating". */
