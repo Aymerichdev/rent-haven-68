@@ -240,8 +240,14 @@ export const useAppStore = create<AppState>()(
 
       createBooking: (b) =>
         set((s) => ({ bookings: [...s.bookings, { ...b, id: uid(), status: "pending" }] })),
-      setBookingStatus: (id, status) =>
-        set((s) => ({ bookings: s.bookings.map((b) => (b.id === id ? { ...b, status } : b)) })),
+      setBookingStatus: (id, status, ownerNote) =>
+        set((s) => ({
+          bookings: s.bookings.map((b) =>
+            b.id === id
+              ? { ...b, status, ownerNote: ownerNote?.trim() ? ownerNote.trim() : b.ownerNote }
+              : b,
+          ),
+        })),
 
       submitPaymentReceipt: (id, receipt) =>
         set((s) => ({
