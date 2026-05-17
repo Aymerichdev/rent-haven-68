@@ -265,7 +265,8 @@ export const seedBookings: AmenityBooking[] = [
     tenantId: "u3",
     ownerId: "u2",
     date: "2025-04-25",
-    time: "18:00",
+    startTime: "18:00",
+    endTime: "19:00",
     status: "pending",
   },
 ];
