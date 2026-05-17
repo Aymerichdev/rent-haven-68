@@ -100,7 +100,14 @@ export interface AmenityBooking {
   tenantId: string;
   ownerId: string;
   date: string;
-  time: string;
+  /** Hora de inicio "HH:MM". (Reemplaza al antiguo `time`.) */
+  startTime: string;
+  /** Hora de fin "HH:MM", calculada según slot. */
+  endTime: string;
+  /** Compat: alias del antiguo `time`. */
+  time?: string;
+  notes?: string;
+  ownerNote?: string;
   status: "pending" | "approved" | "rejected";
 }
 
