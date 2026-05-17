@@ -39,6 +39,8 @@ function Page() {
 
   const [pending, setPending] = useState<Pending>(null);
   const [response, setResponse] = useState("");
+  const [pendingBooking, setPendingBooking] = useState<PendingBooking>(null);
+  const [bookingResponse, setBookingResponse] = useState("");
 
   const confirm = () => {
     if (!pending) return;
@@ -46,6 +48,14 @@ function Page() {
     toast.success(pending.action === "approved" ? "Solicitud aprobada" : "Solicitud rechazada");
     setPending(null);
     setResponse("");
+  };
+
+  const confirmBooking = () => {
+    if (!pendingBooking) return;
+    setBook(pendingBooking.id, pendingBooking.action, bookingResponse.trim() || undefined);
+    toast.success(pendingBooking.action === "approved" ? "Reserva aprobada" : "Reserva rechazada");
+    setPendingBooking(null);
+    setBookingResponse("");
   };
 
   return (
