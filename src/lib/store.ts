@@ -304,8 +304,10 @@ interface AppState {
   rejectPayment: (id: string, ownerNote: string) => void;
 }
 
-const buildingPatchToDb = (patch: Partial<Building>) => {
-  const out: Record<string, unknown> = {};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyRow = any;
+const buildingPatchToDb = (patch: Partial<Building>): AnyRow => {
+  const out: AnyRow = {};
   if (patch.name !== undefined) out.name = patch.name;
   if (patch.address !== undefined) out.address = patch.address;
   if (patch.city !== undefined) out.city = patch.city;
@@ -314,8 +316,8 @@ const buildingPatchToDb = (patch: Partial<Building>) => {
   if (patch.ownerId !== undefined) out.owner_id = patch.ownerId;
   return out;
 };
-const unitPatchToDb = (patch: Partial<Unit>) => {
-  const out: Record<string, unknown> = {};
+const unitPatchToDb = (patch: Partial<Unit>): AnyRow => {
+  const out: AnyRow = {};
   const map: Record<string, string> = {
     buildingId: "building_id",
     ownerId: "owner_id",
@@ -330,8 +332,8 @@ const unitPatchToDb = (patch: Partial<Unit>) => {
   }
   return out;
 };
-const amenityPatchToDb = (patch: Partial<Amenity>) => {
-  const out: Record<string, unknown> = {};
+const amenityPatchToDb = (patch: Partial<Amenity>): AnyRow => {
+  const out: AnyRow = {};
   if (patch.name !== undefined) out.name = patch.name;
   if (patch.icon !== undefined) out.icon = patch.icon;
   if (patch.bookable !== undefined) out.bookable = patch.bookable;
@@ -494,9 +496,9 @@ export const useAppStore = create<AppState>()((set, get) => {
       // No-op aquí; las altas reales pasan por register().
     },
     updateUser: (id, patch) => {
-      const row: Record<string, unknown> = {};
+      const row: AnyRow = {};
       if (patch.name !== undefined) row.name = patch.name;
-      if (patch.role !== undefined && patch.role !== "public") row.role = patch.role;
+      if (patch.role !== undefined && (patch.role as string) !== "public") row.role = patch.role;
       if (patch.avatar !== undefined) row.avatar = patch.avatar ?? null;
       void supabase.from("profiles").update(row).eq("id", id).then(() => refreshUsers());
     },
